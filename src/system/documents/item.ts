@@ -1553,7 +1553,9 @@ export class CosmereItem<
                 }
             }
 
-            messageConfig.rolls = rolls;
+            // NOTE: Pass a copy, as ChatMessage creation serializes the rolls array in place,
+            // which would otherwise replace the Roll instances returned by this method
+            messageConfig.rolls = [...rolls];
 
             // Create chat message
             await ChatMessage.create(
