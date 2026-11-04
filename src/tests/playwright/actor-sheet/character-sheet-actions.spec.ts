@@ -8,6 +8,10 @@ import { mostRecentChatMessage } from '../helpers/chat';
 import { html5DragAndDrop } from '../helpers/drag-drop';
 import { clearNotifications } from '../helpers/utils';
 import { getLocatorForNextWindowToOpen } from '../helpers/hooks';
+import {
+    getLocatorForCompendiumItem,
+    openCompendium,
+} from '../helpers/compendium';
 
 test('Add all basic actions, use them all', async ({
     authenticatedPage: page,
@@ -18,17 +22,14 @@ test('Add all basic actions, use them all', async ({
         ActorType.Character,
     );
     const testCharacterSheet = testCharacter.locator;
-    await page.getByRole('tab', { name: 'Compendium Packs' }).click();
-    await page
-        .locator('span')
-        .filter({ hasText: 'Stormlight Starter Rules' })
-        .click();
-    await page.locator('a').filter({ hasText: 'Actions' }).click();
-    await html5DragAndDrop(
-        page,
-        page.getByText('Basic Actions Pack'),
-        testCharacterSheet,
+    const actionsCompendium = await openCompendium(page, 'Actions', [
+        'Stormlight Starter Rules',
+    ]);
+    const basicActionsPackItem = await getLocatorForCompendiumItem(
+        actionsCompendium,
+        'Basic Actions Pack',
     );
+    await html5DragAndDrop(page, basicActionsPackItem, testCharacterSheet);
 
     await testCharacter.switchToActionsTab();
 
@@ -189,18 +190,14 @@ test('Add weapon, validate strike action details', async ({
         ActorType.Character,
     );
     const testCharacterSheet = testCharacter.locator;
-    await page.getByRole('tab', { name: 'Compendium Packs' }).click();
-    await page
-        .locator('span')
-        .filter({ hasText: 'Stormlight Starter Rules' })
-        .click();
-    await page.locator('a').filter({ hasText: 'Items' }).click();
-    const stormlightItemsFolderLocator = page
-        .locator('#compendium-cosmere-rpg_items li.folder')
-        .filter({ hasText: 'Stormlight' });
-    await stormlightItemsFolderLocator.click();
-    await stormlightItemsFolderLocator.getByText('Weapons').click();
-    await html5DragAndDrop(page, page.getByText('Axe'), testCharacterSheet);
+    const itemsCompendium = await openCompendium(page, 'Items', [
+        'Stormlight Starter Rules',
+    ]);
+    const axeItem = await getLocatorForCompendiumItem(itemsCompendium, 'Axe', [
+        'Stormlight',
+        'Weapons',
+    ]);
+    await html5DragAndDrop(page, axeItem, testCharacterSheet);
     await testCharacterSheet.locator('a').filter({ hasText: '3' }).click();
     // Validate that since the Axe isn't equipped, the "Strike" action is not visible
     await expect(
@@ -229,10 +226,10 @@ test('Add weapon, validate strike action details', async ({
         .first()
         .click();
     await expect(
-        testCharacterSheet.getByRole('button', { name: ' View' }),
+        testCharacterSheet.getByRole('button', { name: 'View' }),
     ).toBeVisible();
     const axeStrikeActionSheetPromise = getLocatorForNextWindowToOpen(page);
-    await testCharacterSheet.getByRole('button', { name: ' View' }).click();
+    await testCharacterSheet.getByRole('button', { name: 'View' }).click();
     const axeStrikeActionSheet = await axeStrikeActionSheetPromise;
     await expect(
         axeStrikeActionSheet
@@ -252,7 +249,7 @@ test('Add weapon, validate strike action details', async ({
         .locator('div:nth-child(7) > a:nth-child(2)')
         .click();
     const axeSheetPromise = getLocatorForNextWindowToOpen(page);
-    await testCharacterSheet.getByRole('button', { name: ' Edit' }).click();
+    await testCharacterSheet.getByRole('button', { name: 'Edit' }).click();
     const axeSheet = await axeSheetPromise;
     await axeSheet.getByText('Details', { exact: true }).click();
     await axeSheet.getByText('Traits Thrown', { exact: true }).click();
@@ -305,14 +302,15 @@ test('Edit mode', async ({ authenticatedPage: page, createActor }) => {
     const testCharacterSheet = testCharacter.locator;
     await testCharacter.switchToActionsTab();
 
-    await page.getByRole('tab', { name: 'Compendium Packs' }).click();
-    await page
-        .locator('span')
-        .filter({ hasText: 'Stormlight Starter Rules' })
-        .click();
-    await page.locator('a').filter({ hasText: 'Heroic Paths' }).click();
-    await page.locator('span').filter({ hasText: 'Envoy' }).click();
-    const envoyPathElement = page.locator('a').filter({ hasText: /^Envoy$/ });
+    const heroicPathsCompendium = await openCompendium(page, 'Heroic Paths', [
+        'Stormlight Starter Rules',
+    ]);
+    const envoyPathElement = await getLocatorForCompendiumItem(
+        heroicPathsCompendium,
+        'Envoy',
+        ['Envoy'],
+    );
+
     await html5DragAndDrop(page, envoyPathElement, testCharacterSheet);
     await clearNotifications(page);
     await expect(

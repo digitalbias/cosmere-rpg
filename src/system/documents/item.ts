@@ -141,15 +141,13 @@ interface ShowConsumeDialogOptions {
 
 class _Item<
     const TSystem extends foundry.abstract.TypeDataModel.Any,
-> extends Item<'base'> {
+> extends Item<ItemType> {
     declare static metadata: foundry.abstract.Document.MetadataFor<'Item'> & {
         embeddedConfig: EmbeddedDocumentsConfig<'Item'>;
         ephemeralEmbedded: EphemeralEmbeddedDocumentsConfig<'Item'>;
     };
 
-    // @ts-expect-error Explicitly declare to get proper typing
     declare type: ItemType;
-    // @ts-expect-error Explicitly declare to get proper typing
     declare system: TSystem;
     // @ts-expect-error Explicitly declare to get proper typing
     declare sheet: BaseItemSheet | null;
@@ -699,12 +697,12 @@ export class CosmereItem<
         if (!this.sheet)
             return super._onClickDocumentLink(
                 event,
-            ) as Promise<foundry.applications.api.ApplicationV2.Any>;
+            ) as Promise<foundry.applications.api.DocumentSheetV2.Any>;
 
         const target = event.currentTarget as HTMLElement;
         await this.sheet.render({ force: true, tab: target.dataset.tab });
         return this
-            .sheet as unknown as foundry.applications.api.ApplicationV2.Any;
+            .sheet as unknown as foundry.applications.api.DocumentSheetV2.Any;
     }
 
     protected override _buildEmbedHTML(
@@ -722,7 +720,7 @@ export class CosmereItem<
         content: HTMLElement | HTMLCollection,
         config: TextEditor.DocumentHTMLEmbedConfig,
         options?: TextEditor.EnrichmentOptions,
-    ): Promise<HTMLElement | null> {
+    ): Promise<foundry.applications.elements.HTMLDocumentEmbedElement | null> {
         const embedHelpers = getEmbedHelpers(this);
         return (
             embedHelpers.createInlineEmbed?.(this, content, config, options) ??
@@ -734,7 +732,7 @@ export class CosmereItem<
         content: HTMLElement | HTMLCollection,
         config: TextEditor.DocumentHTMLEmbedConfig,
         options?: TextEditor.EnrichmentOptions,
-    ): Promise<HTMLElement | null> {
+    ): Promise<foundry.applications.elements.HTMLDocumentEmbedElement | null> {
         const embedHelpers = getEmbedHelpers(this);
         return (
             embedHelpers.createFigureEmbed?.(this, content, config, options) ??
@@ -745,7 +743,7 @@ export class CosmereItem<
     protected _preUpdate(
         changed: Item.UpdateData,
         options: Item.Database.PreUpdateOptions,
-        user: User.Implementation,
+        user: User.Stored,
     ): Promise<boolean | void> {
         if (
             this.isWeapon() &&
@@ -779,7 +777,9 @@ export class CosmereItem<
         if (!this.isWeapon()) return [];
 
         return [
-            ...this.getWeaponStrikeData().map((data) => new CosmereItem(data)),
+            ...this.getWeaponStrikeData().map(
+                (data) => new CosmereItem<ActionItemDataModel>(data),
+            ),
         ];
     }
 
@@ -802,7 +802,7 @@ export class CosmereItem<
             this.actor ??
             (game.canvas?.tokens?.controlled?.[0]?.actor as
                 | CosmereActor
-                | undefined);
+                | undefined as Actor.Stored);
 
         // Ensure an actor was found
         if (!actor) {
@@ -890,7 +890,7 @@ export class CosmereItem<
             this.actor ??
             (game.canvas?.tokens?.controlled?.[0]?.actor as
                 | CosmereActor
-                | undefined);
+                | undefined as Actor.Stored);
 
         // Ensure an actor was found
         if (!actor) {
@@ -925,18 +925,17 @@ export class CosmereItem<
 
         const formula = options.overrideFormula ?? this.system.damage.formula;
         // Perform the roll
-        const roll = await damageRoll(
-            foundry.utils.mergeObject(options, {
-                formula:
-                    rollData.mod !== undefined
-                        ? `${formula} + ${rollData.mod}`
-                        : formula,
-                damageType: this.system.damage.type,
-                mod: rollData.mod,
-                data: rollData,
-                source: this.name,
-            }) as DamageRollConfiguration,
-        );
+        const roll = await damageRoll({
+            ...options,
+            formula:
+                rollData.mod !== undefined
+                    ? `${formula} + ${rollData.mod}`
+                    : formula,
+            damageType: this.system.damage.type,
+            mod: rollData.mod,
+            data: rollData,
+            source: this.name,
+        } as DamageRollConfiguration);
 
         // Gather the formula options for graze rolls
         const unmoddedRoll = roll.clone();
@@ -982,13 +981,12 @@ export class CosmereItem<
 
         const usesBaseDamage = grazeFormula.includes('@damage');
 
-        const grazeRoll = await damageRoll(
-            foundry.utils.mergeObject(options, {
-                formula: grazeFormula,
-                damageType: this.system.damage.type,
-                data: rollData,
-            }) as DamageRollConfiguration,
-        );
+        const grazeRoll = await damageRoll({
+            ...options,
+            formula: grazeFormula,
+            damageType: this.system.damage.type,
+            data: rollData,
+        } as DamageRollConfiguration);
 
         // update with results from the basic roll if needed and store for display
         if (usesBaseDamage) grazeRoll.replaceDieResults(roll.dice);
@@ -1026,7 +1024,7 @@ export class CosmereItem<
             this.actor ??
             (game.canvas?.tokens?.controlled?.[0]?.actor as
                 | CosmereActor
-                | undefined);
+                | undefined as Actor.Stored);
 
         // Ensure an actor was found
         if (!actor) {
@@ -1446,7 +1444,9 @@ export class CosmereItem<
             user: game.user.id,
             speaker:
                 options.speaker ??
-                ChatMessage.getSpeaker({ actor: options.actor }),
+                ChatMessage.getSpeaker({
+                    actor: options.actor as Actor.Stored,
+                }),
             rolls: [] as foundry.dice.Roll[],
             flags: {} as Record<string, unknown>,
         };
@@ -1588,7 +1588,9 @@ export class CosmereItem<
             user: game.user.id,
             speaker:
                 options.speaker ??
-                ChatMessage.getSpeaker({ actor: options.actor }),
+                ChatMessage.getSpeaker({
+                    actor: options.actor as Actor.Stored,
+                }),
             rolls: [] as foundry.dice.Roll[],
             flags: {} as Record<string, unknown>,
         };
@@ -1987,7 +1989,7 @@ export class CosmereItem<
         const ammoResource = this.getResource(ItemResource.Ammo);
         const hasAmmoResource = !!ammoResource && ammoResource.max > 0;
 
-        const actions: Item.CreateData[] = [
+        const actions: Item.CreateData<ItemType.Action>[] = [
             {
                 type: ItemType.Action,
                 name: `${game.i18n.localize('COSMERE.Item.Weapon.Strike')}: ${this.name}`,

@@ -133,12 +133,16 @@ export class ActorSheetRef {
         type: ActorType,
     ): Promise<ActorSheetRefData> {
         await page.getByRole('tab', { name: 'Actors' }).click();
-        await page.getByRole('button', { name: ' Create Actor' }).click();
+        await page.getByRole('button', { name: 'Create Actor' }).click();
         await page.getByRole('textbox', { name: 'Character' }).click();
         await page.getByRole('textbox', { name: 'Character' }).fill(name);
         await page.getByRole('combobox').selectOption(type);
         const newActorPromise = paramsFromHook(page, 'createActor');
-        await page.getByRole('button', { name: ' Create Actor' }).click();
+        await page
+            .locator('section')
+            .filter({ hasText: 'Name Type AdversaryCharacter' })
+            .getByRole('button', { name: 'Create Actor' })
+            .click();
         const [createdActor, createOptions, id] = await newActorPromise;
         expect(createdActor.name == name);
         expect(createdActor.type == type);
@@ -146,7 +150,7 @@ export class ActorSheetRef {
         expect(createdActor.uuid);
         const actorSheetRef = {
             id: createdActor.id!,
-            uuid: createdActor.uuid,
+            uuid: createdActor.uuid!,
             name: createdActor.name,
             type: createdActor.type as ActorType,
         };

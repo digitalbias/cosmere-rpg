@@ -4,11 +4,12 @@ export class StringField<
     protected override _cleanType(
         value: foundry.data.fields.StringField.InitializedType<Options>,
         options?: foundry.data.fields.DataField.CleanOptions,
+        _state: foundry.data.fields.DataField.UpdateState = {},
     ): foundry.data.fields.StringField.InitializedType<Options> {
-        value = super._cleanType(value, options);
+        value = super._cleanType(value, options, _state);
 
         try {
-            const validationResult = this._validateType(value, options);
+            const validationResult = this._validateType(value);
             if (
                 validationResult === false ||
                 typeof validationResult === 'object'
