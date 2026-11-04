@@ -1,4 +1,5 @@
 import { AnyObject } from '@system/types/utils';
+import { reconstructOperator } from './operators';
 import { InferAssignmentType, InferInitializedType } from '../types';
 
 export class MappingField<
@@ -30,6 +31,21 @@ export class MappingField<
                 : undefined;
 
         Object.entries(value).forEach(([key, v]) => {
+            // Reconstruct serialized DataFieldOperators
+            v = reconstructOperator(
+                value as Record<string, unknown>,
+                key,
+                v,
+            ) as typeof v;
+
+            // Leave deletion/replacement operators untouched
+            if (
+                key.startsWith('-=') ||
+                (v as unknown) instanceof
+                    foundry.data.operators.DataFieldOperator
+            )
+                return;
+
             value[key] = this.model.clean(v, options, {
                 ..._state,
                 source: source?.[key],
@@ -73,6 +89,13 @@ export class MappingField<
         if (!value) return errors;
 
         Object.entries(value).forEach(([key, v]) => {
+            if (
+                key.startsWith('-=') ||
+                (v as unknown) instanceof
+                    foundry.data.operators.DataFieldOperator
+            )
+                return;
+
             const error = this.model.validate(
                 v,
                 options,

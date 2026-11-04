@@ -81,8 +81,8 @@ export function getObjectChanges(original: object, updated: object): AnyObject {
                 });
 
             return removalDepth === -1
-                ? `-=${keyParts[0]}`
-                : `${keyParts.slice(0, -removalDepth).join('.')}.-=${keyParts.at(-removalDepth)}`;
+                ? keyParts[0]
+                : `${keyParts.slice(0, -removalDepth).join('.')}.${keyParts.at(-removalDepth)}`;
         })
         .filter((v, i, self) => self.indexOf(v) === i);
 
@@ -96,7 +96,7 @@ export function getObjectChanges(original: object, updated: object): AnyObject {
 
     // Add removed keys
     removedKeys.forEach((key) => {
-        changes[key] = null;
+        changes[key] = new foundry.data.operators.ForcedDeletion();
     });
 
     return foundry.utils.expandObject(changes) as AnyObject;

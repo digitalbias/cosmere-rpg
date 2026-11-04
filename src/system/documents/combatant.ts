@@ -33,16 +33,19 @@ export class CosmereCombatant extends Combatant {
     }
 
     public get isBoss(): boolean {
+        // NOTE: The actor may be missing (e.g. deleted after being added to combat)
+        const actor = this.actor as CosmereActor | null;
         return (
-            this.actor.isAdversary() &&
-            this.actor.system.role === AdversaryRole.Boss
+            !!actor?.isAdversary() && actor.system.role === AdversaryRole.Boss
         );
     }
 
     public get initiative(): number {
-        const spd = this.actor.system.attributes.spd;
+        const actor = this.actor as CosmereActor | null;
+        if (!actor) return 0;
+        const spd = actor.system.attributes.spd;
         let initiative = spd.value + spd.bonus;
-        if (this.actor.isCharacter()) initiative += 500;
+        if (actor.isCharacter()) initiative += 500;
         if (this.turnSpeed === TurnSpeed.Fast) initiative += 1000;
         return initiative;
     }

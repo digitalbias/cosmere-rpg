@@ -11,6 +11,10 @@ import { RollMode } from './types';
 import { hasKey } from '../utils/generic';
 import { renderSystemTemplate, TEMPLATES } from '../utils/templates';
 import { Nullable } from '../types/utils';
+import {
+    getDefaultRollMode,
+    messageModeOptions,
+} from '@system/utils/roll-mode';
 
 // Constants
 const CONFIGURATION_DIALOG_TEMPLATE =
@@ -292,10 +296,19 @@ export class D20Roll extends foundry.dice.Roll<D20RollData> {
         options?: Roll.ToMessageOptions<Create>,
     ): Promise<Roll.ToMessageReturn<Create>> {
         options ??= {};
-        options.rollMode ??= this.options.rollMode;
-        options.rollMode ??= game.settings.get('core', 'rollMode');
+        const rollMode =
+            (options as { rollMode?: string }).rollMode ??
+            this.options.rollMode ??
+            getDefaultRollMode();
 
-        return super.toMessage(messageData, options);
+        // NOTE: Foundry v14 replaced the rollMode option with messageMode
+        const { rollMode: _legacy, ...rest } = options as typeof options & {
+            rollMode?: string;
+        };
+        return super.toMessage(messageData, {
+            ...rest,
+            ...messageModeOptions(rollMode),
+        } as typeof options);
     }
 
     public async getHTML() {

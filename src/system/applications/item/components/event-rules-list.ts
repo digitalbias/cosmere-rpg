@@ -60,7 +60,7 @@ any> {
         });
 
         // Get the rule
-        const rule = this.item.system.events.get(id) as Rule; // TEMP: Workaround
+        const rule = this.item.system.events.get(id)!; // TEMP: Workaround
 
         // Show the edit dialog
         void ItemEditEventRuleDialog.show(this.item, rule);
@@ -74,7 +74,7 @@ any> {
         if (!id) return;
 
         // Get the rule
-        const rule = this.item.system.events.get(id) as Rule; // TEMP: Workaround
+        const rule = this.item.system.events.get(id)!; // TEMP: Workaround
         if (!rule) return;
 
         // Show the edit dialog
@@ -92,7 +92,7 @@ any> {
         if (!id) return;
 
         // Get the rule
-        const rule = this.item.system.events.get(id) as Rule; // TEMP: Workaround
+        const rule = this.item.system.events.get(id)!; // TEMP: Workaround
         if (!rule) return;
 
         void this.item.update({
@@ -112,7 +112,8 @@ any> {
 
         // Delete the rule
         void this.item.update({
-            [`system.events.-=${id}`]: null,
+            [`system.events.${id}`]:
+                new foundry.data.operators.ForcedDeletion(),
         });
     }
 

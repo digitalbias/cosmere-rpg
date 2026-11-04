@@ -104,7 +104,10 @@ Hooks.once('init', async () => {
     // Configure the starter rules
     registerStarterRulesConfig();
 
-    Actors.unregisterSheet('core', foundry.appv1.sheets.ActorSheet);
+    foundry.documents.collections.Actors.unregisterSheet(
+        'core',
+        foundry.appv1.sheets.ActorSheet,
+    );
     registerActorSheet(
         ActorType.Character,
         applications.actor.CharacterSheet as any,
@@ -114,7 +117,10 @@ Hooks.once('init', async () => {
         applications.actor.AdversarySheet as any,
     );
 
-    Items.unregisterSheet('core', foundry.appv1.sheets.ItemSheet);
+    foundry.documents.collections.Items.unregisterSheet(
+        'core',
+        foundry.appv1.sheets.ItemSheet,
+    );
     registerItemSheet(
         ItemType.Culture,
         applications.item.CultureItemSheet as any,
@@ -280,7 +286,7 @@ function registerItemSheet(
     type: ItemType,
     sheet: typeof foundry.applications.api.ApplicationV2,
 ) {
-    Items.registerSheet(SYSTEM_ID, sheet as any, {
+    foundry.documents.collections.Items.registerSheet(SYSTEM_ID, sheet as any, {
         types: [type],
         makeDefault: true,
         label: `TYPES.Item.${type}`,

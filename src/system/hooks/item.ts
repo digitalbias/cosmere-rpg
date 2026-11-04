@@ -320,6 +320,7 @@ async function disconnectRelationship(
 
     // Remove the relationship from the related item
     await relatedItem.update({
-        [`system.relationships.-=${relationShip.id}`]: null,
+        [`system.relationships.${relationShip.id}`]:
+            new foundry.data.operators.ForcedDeletion(),
     });
 }

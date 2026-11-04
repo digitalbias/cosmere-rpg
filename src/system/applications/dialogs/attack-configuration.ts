@@ -15,6 +15,7 @@ import { TEMPLATES } from '@src/system/utils/templates';
 
 // Mixins
 import { ComponentHandlebarsApplicationMixin } from '@system/applications/component-system';
+import { getRollModeChoices } from '@system/utils/roll-mode';
 
 const { ApplicationV2 } = foundry.applications.api;
 
@@ -388,7 +389,7 @@ export class AttackConfigurationDialog extends ComponentHandlebarsApplicationMix
 
     public _prepareContext() {
         return Promise.resolve({
-            rollModes: CONFIG.Dice.rollModes,
+            rollModes: getRollModeChoices(),
             defaultRollMode: this.data.defaultRollMode,
             attributes: {
                 [NONE]: 'GENERIC.None',

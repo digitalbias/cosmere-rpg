@@ -14,6 +14,7 @@ import {
 
 // Constants
 import { HOOKS } from '@system/constants/hooks';
+import { getDefaultRollMode } from '@system/utils/roll-mode';
 
 export * from './d20-roll';
 export * from './damage-roll';
@@ -136,9 +137,7 @@ export async function d20Roll(
                 ? await roll.configureDialog({
                       title: config.title,
                       raiseStakes: config.plotDie,
-                      defaultRollMode:
-                          config.rollMode ??
-                          game.settings.get('core', 'rollMode'),
+                      defaultRollMode: config.rollMode ?? getDefaultRollMode(),
                       defaultAttribute:
                           config.defaultAttribute ??
                           config.data.skill.attribute,

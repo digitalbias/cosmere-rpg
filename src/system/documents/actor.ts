@@ -318,7 +318,9 @@ export class CosmereActor<
 
     public prepareDerivedData() {
         super.prepareDerivedData();
-        this.applyActiveEffects();
+        // NOTE: Since Foundry v14 effects are applied in phases. Core applies the
+        // "final" phase after this method completes (in prepareData).
+        this.applyActiveEffects('initial');
 
         if (this.type !== 'base') this.system.prepareSecondaryDerivedData();
     }
@@ -1439,7 +1441,6 @@ export class CosmereActor<
         for (const effect of this.effects) {
             yield effect;
         }
-        if (CONFIG.ActiveEffect.legacyTransferral) return;
         for (const item of this.items) {
             for (const effect of item.effects) {
                 if (effect.transfer) yield effect;

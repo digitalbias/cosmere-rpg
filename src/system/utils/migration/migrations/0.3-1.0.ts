@@ -202,7 +202,7 @@ function migrateItemData(item: RawDocumentData<any>, changes: object) {
                                 {
                                     key: `system.skills.${reward.skill as string}.rank`,
                                     value: reward.ranks,
-                                    mode: CONST.ACTIVE_EFFECT_MODES.UPGRADE,
+                                    mode: 4 /* UPGRADE */,
                                 },
                             ],
                             uuid: null,

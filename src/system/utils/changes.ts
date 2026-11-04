@@ -1,4 +1,4 @@
-import { ChangeData } from '@system/data/item/misc/change';
+import { ChangeData, CHANGE_MODES } from '@system/data/item/misc/change';
 import { AnyObject } from '@system/types/utils';
 
 interface IRollable {
@@ -99,7 +99,7 @@ export function getChangeValue(change: ChangeData, source: object) {
     const valueType = foundry.utils.getType(currentValue);
 
     switch (change.mode) {
-        case CONST.ACTIVE_EFFECT_MODES.ADD:
+        case CHANGE_MODES.ADD:
             return valueType === 'number'
                 ? (currentValue as number) + tryParseNumber(change.value)
                 : valueType === 'string'
@@ -112,11 +112,11 @@ export function getChangeValue(change: ChangeData, source: object) {
                             JSON.parse(change.value),
                         )
                       : currentValue;
-        case CONST.ACTIVE_EFFECT_MODES.MULTIPLY:
+        case CHANGE_MODES.MULTIPLY:
             return valueType === 'number'
                 ? (currentValue as number) * tryParseNumber(change.value)
                 : currentValue;
-        case CONST.ACTIVE_EFFECT_MODES.UPGRADE:
+        case CHANGE_MODES.UPGRADE:
             return valueType === 'number'
                 ? Math.max(currentValue as number, tryParseNumber(change.value))
                 : valueType === 'string'
@@ -124,7 +124,7 @@ export function getChangeValue(change: ChangeData, source: object) {
                       ? currentValue
                       : change.value
                   : currentValue;
-        case CONST.ACTIVE_EFFECT_MODES.DOWNGRADE:
+        case CHANGE_MODES.DOWNGRADE:
             return valueType === 'number'
                 ? Math.min(currentValue as number, tryParseNumber(change.value))
                 : valueType === 'string'
@@ -132,8 +132,8 @@ export function getChangeValue(change: ChangeData, source: object) {
                       ? currentValue
                       : change.value
                   : currentValue;
-        case CONST.ACTIVE_EFFECT_MODES.OVERRIDE:
-        case CONST.ACTIVE_EFFECT_MODES.CUSTOM:
+        case CHANGE_MODES.OVERRIDE:
+        case CHANGE_MODES.CUSTOM:
         default:
             return change.value;
     }

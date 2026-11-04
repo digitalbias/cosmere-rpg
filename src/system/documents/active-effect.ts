@@ -4,6 +4,7 @@ import { ItemType, Status } from '@system/types/cosmere';
 
 // Utils
 import { tryApplyRollData } from '@system/utils/changes';
+import type { ChangeData } from '@system/data/item/misc/change';
 
 export class CosmereActiveEffect<
     out SubType extends ActiveEffect.SubType = ActiveEffect.SubType,
@@ -118,19 +119,39 @@ export class CosmereActiveEffect<
         }
     }
 
-    public override apply(
-        actor: CosmereActor,
-        change: ActiveEffect.ChangeData,
-    ) {
-        // Update the change
-        const newChange = tryApplyRollData(actor, change);
+    /* --- Change application --- */
 
-        if (this.isStackable) {
-            newChange.value = `( ${newChange.value} ) * ${this.stacks}`;
+    /**
+     * Foundry v14 applies effect changes through the static
+     * `ActiveEffect.applyChange` rather than the (now deprecated) instance
+     * `apply` method, so the system's change pre-processing lives here.
+     *
+     * - Change values are evaluated as formulas against the actor's roll data.
+     * - Changes from stackable effects are multiplied by the number of stacks.
+     */
+    public static override applyChange(
+        targetDoc: Parameters<typeof ActiveEffect.applyChange>[0],
+        change: Parameters<typeof ActiveEffect.applyChange>[1],
+        options: Parameters<typeof ActiveEffect.applyChange>[2] = {},
+    ): ReturnType<typeof ActiveEffect.applyChange> {
+        const effect = (change as { effect?: CosmereActiveEffect }).effect;
+        const rollSource =
+            options?.replacementData ??
+            (targetDoc as unknown as CosmereActor).getRollData?.() ??
+            {};
+
+        // Update the change
+        const newChange = tryApplyRollData(
+            rollSource as Record<string, unknown>,
+            change as unknown as ChangeData,
+        ) as unknown as typeof change;
+
+        if (effect?.isStackable) {
+            newChange.value = `( ${String(newChange.value)} ) * ${effect.stacks}`;
         }
 
         // Execute the standard ActiveEffect application logic
-        return super.apply(actor, newChange);
+        return super.applyChange(targetDoc, newChange, options);
     }
 }
 

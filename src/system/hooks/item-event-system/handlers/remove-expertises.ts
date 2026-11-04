@@ -51,7 +51,8 @@ export function register() {
                         expertises: expertises.reduce(
                             (acc, expertise) => ({
                                 ...acc,
-                                [`-=${expertise.key}`]: null,
+                                [`${expertise.key}`]:
+                                    new foundry.data.operators.ForcedDeletion(),
                             }),
                             {},
                         ),

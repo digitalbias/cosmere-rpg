@@ -152,7 +152,8 @@ function removeRelationship(
     );
     if (relationship) {
         const changes = {
-            [`system.relationships.-=${relationship.id}`]: null,
+            [`system.relationships.${relationship.id}`]:
+                new foundry.data.operators.ForcedDeletion(),
         };
 
         if (!options.source) {

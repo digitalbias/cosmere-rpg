@@ -4,6 +4,7 @@ import {
     InferPersistedType,
 } from '../types';
 import { AnyObject, AnyMutableObject } from '@system/types/utils';
+import { reconstructOperator } from './operators';
 
 export interface CollectionFieldOptions<T = AnyObject>
     extends foundry.data.fields.DataField.Options<AnyObject> {
@@ -292,24 +293,33 @@ export class CollectionField<
                 ? (_state.source as Record<string, unknown>)
                 : undefined;
         Array.from(Object.entries(value)).forEach(([key, v]) => {
+            // Reconstruct serialized DataFieldOperators (e.g. ForcedDeletion
+            // received from the server as part of an update diff)
+            v = reconstructOperator(
+                value as Record<string, unknown>,
+                key,
+                v,
+            ) as typeof v;
+
+            // Leave deletion/replacement operators untouched
+            if (
+                key.startsWith('-=') ||
+                v instanceof foundry.data.operators.DataFieldOperator
+            )
+                return;
+
             const cleaned = this.model.clean(v, options, {
                 ..._state,
                 source: source?.[key],
             }) as TElementFieldAssignment;
 
-            if (key.startsWith('-=')) {
-                (value as Record<string, TElementFieldAssignment | null>)[key] =
-                    null;
-            } else {
-                // Determine the key
-                const prevKey = key;
-                key = this.getItemKey(cleaned) ?? key;
+            // Determine the key
+            const prevKey = key;
+            key = this.getItemKey(cleaned) ?? key;
 
-                if (key !== prevKey) delete value[prevKey];
+            if (key !== prevKey) delete value[prevKey];
 
-                (value as Record<string, TElementFieldAssignment>)[key] =
-                    cleaned;
-            }
+            (value as Record<string, TElementFieldAssignment>)[key] = cleaned;
         });
 
         return value;
@@ -353,6 +363,7 @@ export class CollectionField<
         > = {};
         Object.entries(value).forEach(([id, v]) => {
             if (id.startsWith('-=') && v === null) return; // Skip deletions
+            if (v instanceof foundry.data.operators.DataFieldOperator) return;
 
             const error = this.model.validate(
                 v as TElementFieldAssignment,
@@ -404,40 +415,123 @@ export class CollectionField<
 
     public _updateDiff(
         key: string,
-        value: Record<string, AnyMutableObject>,
+        value: Record<string, unknown> | null | undefined,
         options: foundry.abstract.DataModel.UpdateOptions,
-        state: { source: AnyMutableObject; diff: AnyMutableObject },
+        state: {
+            source: AnyMutableObject;
+            diff: AnyMutableObject;
+            model?: foundry.abstract.DataModel.Any;
+            failure?: foundry.data.validation.DataModelValidationFailure;
+        },
     ) {
-        const current = state.source[key] as Record<string, AnyMutableObject>;
-        if (!current) return super._updateDiff(key, value, options, state);
+        const { DataFieldOperator, ForcedDeletion, ForcedReplacement } =
+            foundry.data.operators;
 
-        const schemaDiff: AnyMutableObject = (state.diff[key] = {});
+        // * -> null, or operators applied to the whole collection (e.g. _del, _replace())
+        if (!value || value instanceof DataFieldOperator)
+            return super._updateDiff(
+                key,
+                value as never,
+                options,
+                state as never,
+            );
+
+        // * -> {}
+        const source = ((state.source[key] as
+            | Record<string, unknown>
+            | undefined) ??= {});
+        const diff: AnyMutableObject = {};
+        const failure =
+            new foundry.data.validation.DataModelValidationFailure();
+        const fieldState = { ...state, source, diff, failure };
+
         Object.entries(value).forEach(([k, v]) => {
             let name = k;
-            const specialKey = foundry.utils.isDeletionKey(k);
-            if (specialKey) name = k.slice(2);
+            let update = v;
 
-            if (specialKey) {
-                if (k.startsWith('-')) {
-                    if (v !== null)
-                        throw new Error(
-                            'Removing a key using the -= deletion syntax requires the value of that deletion key to be null, for example {-=key: null}',
-                        );
-                    if (name in current) {
-                        schemaDiff[k] = v;
-                        delete current[name];
-                    }
-                } else if (k.startsWith('=')) {
-                    schemaDiff[k] = current[name] =
-                        foundry.utils.applySpecialKeys(v);
+            // Backwards compatibility for legacy special keys
+            if (k.startsWith('-=')) {
+                name = k.slice(2);
+                update = new ForcedDeletion();
+            } else if (k.startsWith('==')) {
+                name = k.slice(2);
+                update = ForcedReplacement.create(v as AnyObject);
+            }
+
+            // Deletions are kept in the diff, but removed from source
+            if (update instanceof ForcedDeletion) {
+                if (name in source) {
+                    diff[name] = update;
+                    delete source[name];
                 }
                 return;
             }
 
-            this.model._updateDiff(name, v, options, {
-                source: current,
-                diff: schemaDiff,
-            });
+            (
+                this.model as unknown as {
+                    _updateDiff: (
+                        k: string,
+                        v: unknown,
+                        o: typeof options,
+                        s: typeof fieldState,
+                    ) => void;
+                }
+            )._updateDiff(name, update, options, fieldState);
+        });
+
+        // Record failure
+        if (failure.unresolved) {
+            if (state.failure) {
+                (state.failure.fields as Record<string, unknown>)[key] =
+                    failure;
+                state.failure.unresolved = true;
+            }
+            return;
+        }
+
+        if (foundry.utils.isEmpty(diff)) return;
+
+        // Assign results to diff and source
+        state.diff[key] = diff;
+        state.source[key] = source;
+    }
+
+    public override _updateCommit(
+        source: AnyMutableObject,
+        key: string,
+        value: unknown,
+        diff: unknown,
+        options: foundry.abstract.DataModel.UpdateOptions,
+    ) {
+        const s = source[key] as AnyMutableObject | undefined;
+
+        // * -> undefined, * -> null, undefined -> *, null -> *
+        if (!s || !value || Object.isSealed(s)) {
+            source[key] = value;
+            return;
+        }
+
+        const v = value as AnyMutableObject;
+
+        // Remove keys which no longer exist in the new value
+        Object.keys(s).forEach((k) => {
+            if (!(k in v)) delete s[k];
+        });
+
+        // Update entries which changed in the diff
+        Object.entries((diff as AnyMutableObject) ?? {}).forEach(([k, d]) => {
+            if (d instanceof foundry.data.operators.ForcedDeletion) return;
+            (
+                this.model as unknown as {
+                    _updateCommit: (
+                        s: AnyMutableObject,
+                        k: string,
+                        v: unknown,
+                        d: unknown,
+                        o: typeof options,
+                    ) => void;
+                }
+            )._updateCommit(s, k, v[k], d, options);
         });
     }
 

@@ -380,6 +380,7 @@ function deselectExpertise(actor: CosmereActor, compositeId: Expertise) {
     return actor.update({
         [`flags.${SYSTEM_ID}.${FLAGS.EXPERTISES_SELECTED}`]: updatedExpertises,
         // gotta manually construct the key since it is undefined for some reason
-        [`system.expertises.-=${type}:${id}`]: {},
+        [`system.expertises.${type}:${id}`]:
+            new foundry.data.operators.ForcedDeletion(),
     });
 }

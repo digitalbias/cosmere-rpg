@@ -801,7 +801,9 @@ export class CosmereChatMessage<
     private static toggleModifiers({ releaseAll = false }) {
         document.querySelectorAll('.chat-sidebar > ol').forEach((chatlog) => {
             const chatlogHTML = chatlog as HTMLElement;
-            for (const key of Object.values(KeyboardManager.MODIFIER_KEYS)) {
+            for (const key of Object.values(
+                foundry.helpers.interaction.KeyboardManager.MODIFIER_KEYS,
+            )) {
                 if (game.keyboard.isModifierActive(key) && !releaseAll)
                     chatlogHTML.dataset[`modifier${key}`] = '';
                 else delete chatlogHTML.dataset[`modifier${key}`];

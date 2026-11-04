@@ -48,7 +48,8 @@ export async function removeNode(
 
     return tree.update(
         {
-            [`system.nodes.-=${node.id}`]: null,
+            [`system.nodes.${node.id}`]:
+                new foundry.data.operators.ForcedDeletion(),
         },
         operation,
     );
@@ -166,7 +167,10 @@ export function removeConnection(
     // Prepare node changes
     const nodeChanges = prereq
         ? Array.from(prereq.talents).length === 1
-            ? { [`prerequisites.-=${prereq.id}`]: null }
+            ? {
+                  [`prerequisites.${prereq.id}`]:
+                      new foundry.data.operators.ForcedDeletion(),
+              }
             : {
                   [`prerequisites.${prereq.id}.talents`]: prereq.talents.filter(
                       (talent) => talent.id !== to.talentId,
@@ -175,7 +179,8 @@ export function removeConnection(
         : {};
 
     // Remove the connection
-    nodeChanges[`connections.-=${to.id}`] = null;
+    nodeChanges[`connections.${to.id}`] =
+        new foundry.data.operators.ForcedDeletion();
 
     // Update the tree
     return tree.update(
@@ -214,11 +219,13 @@ export function removePrerequisite(
     return tree.update(
         {
             [`system.nodes.${node.id}`]: {
-                [`prerequisites.-=${prereqId}`]: null,
+                [`prerequisites.${prereqId}`]:
+                    new foundry.data.operators.ForcedDeletion(),
                 ...connections.reduce(
                     (acc, id) => ({
                         ...acc,
-                        [`connections.-=${id}`]: null,
+                        [`connections.${id}`]:
+                            new foundry.data.operators.ForcedDeletion(),
                     }),
                     {} as Record<string, unknown>,
                 ),

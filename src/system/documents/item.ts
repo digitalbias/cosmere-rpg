@@ -121,6 +121,11 @@ import { ItemConsumeDialog } from '@src/system/applications/item/dialogs/item-co
 import { SYSTEM_ID } from '@system/constants';
 import { HOOKS } from '@system/constants/hooks';
 import { ItemOrigin } from '@system/types/item';
+import {
+    applyRollModeToMessage,
+    getDefaultRollMode,
+    messageModeOptions,
+} from '@system/utils/roll-mode';
 
 interface ShowConsumeDialogOptions {
     /**
@@ -1057,7 +1062,7 @@ export class CosmereItem<
                 ? actor.system.skills[damageSkillId].attribute
                 : null);
 
-        options.rollMode ??= game.settings.get('core', 'rollMode');
+        options.rollMode ??= getDefaultRollMode();
         options.skillTest ??= {};
         options.skillTest.parts ??= this.system.skillTest.modifierFormula
             ? [this.system.skillTest.modifierFormula]
@@ -1269,7 +1274,7 @@ export class CosmereItem<
             return null;
         }
 
-        options.rollMode ??= game.settings.get('core', 'rollMode');
+        options.rollMode ??= getDefaultRollMode();
 
         const { fastForward, advantageMode, plotDie } =
             determineConfigurationMode(options);
@@ -1551,9 +1556,10 @@ export class CosmereItem<
             messageConfig.rolls = rolls;
 
             // Create chat message
-            await ChatMessage.create(messageConfig, {
-                rollMode: options.rollMode,
-            });
+            await ChatMessage.create(
+                messageConfig,
+                messageModeOptions(options.rollMode),
+            );
 
             // Perform post roll actions
             postRoll.forEach((action) => action());
@@ -1568,9 +1574,10 @@ export class CosmereItem<
             const flavor = this.system.activation!.flavor || undefined;
 
             // Create chat message
-            const message = (await ChatMessage.create(messageConfig, {
-                rollMode: options.rollMode,
-            })) as ChatMessage;
+            const message = (await ChatMessage.create(
+                messageConfig,
+                messageModeOptions(options.rollMode),
+            )) as ChatMessage;
 
             // Perform post roll actions
             postRoll.forEach((action) => action());
@@ -1608,7 +1615,7 @@ export class CosmereItem<
         const message = new ChatMessage(messageConfig);
 
         if (options.rollMode) {
-            message.applyRollMode(options.rollMode);
+            applyRollModeToMessage(message, options.rollMode);
         }
 
         return message;

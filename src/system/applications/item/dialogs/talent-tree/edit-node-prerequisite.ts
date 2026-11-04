@@ -114,8 +114,8 @@ export class EditNodePrerequisiteDialog extends ComponentHandlebarsApplicationMi
                 ...removedTalents.reduce(
                     (acc, id) => ({
                         ...acc,
-                        [`system.nodes.${this.node.id}.prerequisites.${this.data.id}.talents.-=${id}`]:
-                            null,
+                        [`system.nodes.${this.node.id}.prerequisites.${this.data.id}.talents.${id}`]:
+                            new foundry.data.operators.ForcedDeletion(),
                     }),
                     {},
                 ),
@@ -148,8 +148,8 @@ export class EditNodePrerequisiteDialog extends ComponentHandlebarsApplicationMi
                 ...removedGoals.reduce(
                     (acc, id) => ({
                         ...acc,
-                        [`system.nodes.${this.node.id}.prerequisites.${this.data.id}.goals.-=${id}`]:
-                            null,
+                        [`system.nodes.${this.node.id}.prerequisites.${this.data.id}.goals.${id}`]:
+                            new foundry.data.operators.ForcedDeletion(),
                     }),
                     {},
                 ),

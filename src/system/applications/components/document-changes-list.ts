@@ -1,6 +1,10 @@
 import { ConstructorOf, AnyMutableObject } from '@system/types/utils';
 
-import { ChangeData, ChangeDataModel } from '@system/data/item/misc/change';
+import {
+    ChangeData,
+    ChangeDataModel,
+    CHANGE_MODES,
+} from '@system/data/item/misc/change';
 
 // Component imports
 import { HandlebarsApplicationComponent } from '@system/applications/component-system';
@@ -85,7 +89,7 @@ export class DocumentChangesListComponent extends HandlebarsApplicationComponent
         if (this.readonly) return;
         this.value = [
             ...this.value,
-            { key: '', value: '', mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE },
+            { key: '', value: '', mode: CHANGE_MODES.OVERRIDE },
         ];
     }
 
