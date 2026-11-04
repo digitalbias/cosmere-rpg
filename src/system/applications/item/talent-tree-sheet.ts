@@ -112,6 +112,12 @@ export class TalentTreeItemSheet extends EditModeApplicationMixin(
         if (event instanceof SubmitEvent) return;
         if (!('name' in event.target!)) return;
 
+        // Ignore changes to the context actor selector in the window header
+        if ((event.target as unknown as HTMLElement).closest?.('.actor-select')) return;
+
+        // Don't attempt to update documents which can't be edited (e.g. locked compendiums)
+        if (!this.isEditable) return;
+
         if (
             'system.background.img' in formData.object &&
             formData.object['system.background.img'] !==

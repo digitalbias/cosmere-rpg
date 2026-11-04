@@ -673,7 +673,7 @@ export class TalentTreeViewComponent<
 
         // Show tooltip
         game.tooltip.activate(toolTipRoot, {
-            content: content,
+            html: content,
             direction:
                 foundry.helpers.interaction.TooltipManager.TOOLTIP_DIRECTIONS
                     .RIGHT,

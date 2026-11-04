@@ -1,4 +1,20 @@
 .application.sheet.item.talent-tree {
+    .window-header .actor-select {
+        display: flex;
+        flex: 0 0 auto;
+        align-items: center;
+        gap: 0.5rem;
+
+        label {
+            white-space: nowrap;
+        }
+
+        select {
+            height: auto;
+            min-width: 8rem;
+        }
+    }
+
     .window-content {
         padding: 0;
 
