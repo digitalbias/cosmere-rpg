@@ -73,7 +73,7 @@ export async function enableBurnEffect(
     }
     console.log('Updating effect with new data:');
     console.log(newEffData);
-    await eff.update(newEffData);
+    await eff.update(newEffData as never);
 }
 
 function getEffectUpdateData(
@@ -82,17 +82,20 @@ function getEffectUpdateData(
     increaseChangesValues?: boolean,
     increaseValue?: number,
 ) {
-    const newEffData = {
-        changes: eff.changes,
-        duration: eff.duration,
-        disabled: eff.disabled,
-    };
-    newEffData.duration.rounds = duration;
+    // NOTE: Since Foundry v14 changes live in the effect's system data and
+    // durations are defined by a value and units.
+    const changes = foundry.utils.deepClone(
+        (eff.system as unknown as { changes: { value: unknown }[] }).changes,
+    );
     if (increaseChangesValues && increaseValue) {
-        for (const change of newEffData.changes) {
+        for (const change of changes) {
             change.value = increaseValue.toString();
         }
     }
-    newEffData.disabled = false;
+    const newEffData = {
+        'system.changes': changes,
+        duration: { value: duration, units: 'rounds' },
+        disabled: false,
+    };
     return newEffData;
 }

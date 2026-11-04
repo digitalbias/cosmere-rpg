@@ -53,9 +53,10 @@ export class ItemEffectsListComponent extends HandlebarsApplicationComponent<
                 name: this.application.item.name,
                 img: this.application.item.img,
                 disabled: this.params!.type === 'inactive',
+                // NOTE: Foundry v14 durations are defined by a value and units
                 duration:
                     this.params!.type === 'temporary'
-                        ? { rounds: 1 }
+                        ? ({ value: 1, units: 'rounds' } as never)
                         : undefined,
             },
             { parent: this.application.item },

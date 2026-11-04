@@ -160,9 +160,34 @@ Handlebars.registerHelper(
 Handlebars.registerHelper('effect-duration', (effect: ActiveEffect) => {
     if (!effect.isTemporary) return '—';
 
-    const seconds = effect.duration.seconds;
-    const turns = effect.duration.turns;
-    const rounds = effect.duration.rounds;
+    // NOTE: Since Foundry v14 durations are defined by a value and units
+    const duration = effect.duration as unknown as {
+        value?: number | null;
+        units?: string;
+        seconds?: number | null;
+        turns?: number | null;
+        rounds?: number | null;
+    };
+
+    if ('units' in duration && duration.units) {
+        const value = duration.value;
+        if (!value) return '—';
+
+        switch (duration.units) {
+            case 'rounds':
+                return `${value} ${game.i18n.localize('GENERIC.Rounds')}`;
+            case 'turns':
+                return `${value} ${game.i18n.localize('GENERIC.Turns')}`;
+            case 'seconds':
+                return `${value}s`;
+            default:
+                return `${value} ${duration.units}`;
+        }
+    }
+
+    const seconds = duration.seconds;
+    const turns = duration.turns;
+    const rounds = duration.rounds;
 
     if (seconds) return `${seconds}s`;
     else {
