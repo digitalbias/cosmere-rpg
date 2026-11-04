@@ -120,8 +120,8 @@ const ON_EVENT_PATCHES = {
  * the `system` field of the parent document).
  */
 const _connect = foundry.Game.connect.bind(foundry.Game);
-foundry.Game.connect = async function (this: foundry.Game, sessionId: string) {
-    const socket = await _connect.call(this, sessionId);
+foundry.Game.connect = async function (...args: Parameters<typeof _connect>) {
+    const socket = await _connect(...args);
 
     /**
      * Patch the socket.emit method to intercept modifyDocument requests

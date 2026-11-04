@@ -50,7 +50,7 @@ export function ComponentHandlebarsApplicationMixin<
         }
 
         protected override _onClose(options: RenderOptions) {
-            super._onClose(options);
+            void super._onClose(options);
 
             // Deregister instance
             // TODO: Resolve typing issues
@@ -68,8 +68,9 @@ export function ComponentHandlebarsApplicationMixin<
 
         protected override async _renderHTML(
             context: RenderContext,
-            options: RenderOptions,
+            _options: DeepPartial<RenderOptions>,
         ): Promise<Record<string, HTMLElement>> {
+            const options = _options as RenderOptions;
             let renderedParts: Record<string, HTMLElement> = {};
             const renderedComponents: Record<string, HTMLCollection> = {};
 
@@ -169,8 +170,9 @@ export function ComponentHandlebarsApplicationMixin<
         protected override _replaceHTML(
             result: AnyObject,
             content: HTMLElement,
-            options: RenderOptions,
+            _options: DeepPartial<RenderOptions>,
         ): void {
+            const options = _options as RenderOptions;
             const parts = result.parts as Record<string, HTMLElement>;
             const components = result.components as Record<
                 string,
@@ -245,9 +247,9 @@ export function ComponentHandlebarsApplicationMixin<
         }
 
         protected override async _prepareContext(
-            options: DeepPartial<RenderOptions>,
+            options: DeepPartial<RenderOptions> & { isFirstRender: boolean },
         ): Promise<RenderContext> {
-            return await super._prepareContext(options);
+            return (await super._prepareContext(options)) as RenderContext;
         }
 
         protected override _onRender(

@@ -38,8 +38,10 @@ export class ActionsListEntryComponent extends ActorItemListComponent {
     ) {
         const item = (params as ActionsListEntryComponentParams).item;
 
-        if (!(item.id! in this.itemState)) {
-            this.itemState[item.id!] = {
+        const id = item.id!;
+
+        if (!(id in this.itemState)) {
+            this.itemState[id] = {
                 expanded: false,
             };
         }

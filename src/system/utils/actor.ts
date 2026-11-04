@@ -23,7 +23,8 @@ export function getTypeLabel(type: CommonActorData['type']): string {
 }
 
 export async function getActor(uuid: string) {
-    const { collection, documentId, id, type } = foundry.utils.parseUuid(uuid);
+    const { collection, documentId, id, type } =
+        foundry.utils.parseUuid(uuid) ?? {};
 
     const document =
         collection instanceof foundry.documents.collections.CompendiumCollection

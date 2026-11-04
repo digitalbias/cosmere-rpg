@@ -155,7 +155,13 @@ class _Item<
     declare type: ItemType;
     declare system: TSystem;
     // @ts-expect-error Explicitly declare to get proper typing
-    declare sheet: BaseItemSheet | null;
+    declare sheet: foundry.applications.api.DocumentSheetV2.Any | null;
+    /**
+     * Items can be embedded in actors, or (via system embedded collections)
+     * in other items.
+     */
+    // @ts-expect-error Explicitly declare to allow items as parents
+    declare parent: CosmereActor | CosmereItem | null;
 
     declare items: foundry.abstract.EmbeddedCollection<CosmereItem, this>;
 
@@ -202,7 +208,7 @@ export class CosmereItem<
                     talent_tree: {
                         Item: false, // Disable embedding of items in talent tree items
                     },
-                } as EmbeddedDocumentsConfig<'Item'>,
+                },
                 // Note: Cannot bind due to static context. Calls are bound safely by mixin.
                 /* eslint-disable @typescript-eslint/unbound-method */
                 ephemeralEmbedded: {
@@ -706,8 +712,7 @@ export class CosmereItem<
 
         const target = event.currentTarget as HTMLElement;
         await this.sheet.render({ force: true, tab: target.dataset.tab });
-        return this
-            .sheet as unknown as foundry.applications.api.DocumentSheetV2.Any;
+        return this.sheet;
     }
 
     protected override _buildEmbedHTML(
@@ -869,7 +874,8 @@ export class CosmereItem<
         if (roll && options.chatMessage !== false) {
             // Get the speaker
             const speaker =
-                options.speaker ?? ChatMessage.getSpeaker({ actor });
+                options.speaker ??
+                ChatMessage.getSpeaker({ actor: actor as Actor.Stored });
 
             // Create chat message
             await roll.toMessage({
@@ -981,7 +987,6 @@ export class CosmereItem<
         // Get the graze formula
         const grazeFormula =
             // NOTE: Explicitly use logical OR here to also catch empty strings
-            // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
             this.system.damage.grazeOverrideFormula || '@damage.dice';
 
         const usesBaseDamage = grazeFormula.includes('@damage');
@@ -1001,7 +1006,8 @@ export class CosmereItem<
         if (roll && options.chatMessage !== false) {
             // Get the speaker
             const speaker =
-                options.speaker ?? ChatMessage.getSpeaker({ actor });
+                options.speaker ??
+                ChatMessage.getSpeaker({ actor: actor as Actor.Stored });
 
             // Create chat message
             await roll.toMessage({
@@ -1221,7 +1227,8 @@ export class CosmereItem<
         if (options.chatMessage !== false) {
             // Get the speaker
             const speaker =
-                options.speaker ?? ChatMessage.getSpeaker({ actor });
+                options.speaker ??
+                ChatMessage.getSpeaker({ actor: actor as Actor.Stored });
 
             const flavor = game.i18n
                 .localize('COSMERE.Item.AttackFlavor')

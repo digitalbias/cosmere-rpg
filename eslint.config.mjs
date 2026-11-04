@@ -31,6 +31,19 @@ export default tseslint.config(
             '@typescript-eslint/triple-slash-reference': 'off',
             '@typescript-eslint/no-unsafe-enum-comparison': 'off',
             'no-unexpected-multiline': 'off',
+            // Keep `||`/ternary fallbacks for primitives, where `??` would
+            // change behaviour for empty strings, 0 and false
+            '@typescript-eslint/prefer-nullish-coalescing': [
+                'error',
+                {
+                    ignoreTernaryTests: true,
+                    ignorePrimitives: {
+                        string: true,
+                        number: true,
+                        boolean: true,
+                    },
+                },
+            ],
         },
         languageOptions: {
             parserOptions: {

@@ -141,10 +141,8 @@ export class TalentTreeEditorComponent extends TalentTreeViewComponent {
         const item = await fromUuid<CosmereItem>(data.uuid);
 
         // Handle item
-        if (item?.isTalent())
-            await this.onDropTalent(event, item as TalentItem);
-        else if (item?.isTalentTree())
-            await this.onDropTalentTree(event, item as TalentTreeItem);
+        if (item?.isTalent()) await this.onDropTalent(event, item);
+        else if (item?.isTalentTree()) await this.onDropTalentTree(event, item);
 
         // Refresh tree
         await this.canvasTree!.refresh();
@@ -185,7 +183,7 @@ export class TalentTreeEditorComponent extends TalentTreeViewComponent {
             type: TalentTree.Node.Type.Talent,
             position: dropPos,
             talentId: item.system.id,
-            uuid: item.uuid,
+            uuid: item.uuid!,
             size: {
                 width: GRID_SIZE,
                 height: GRID_SIZE,
@@ -204,7 +202,7 @@ export class TalentTreeEditorComponent extends TalentTreeViewComponent {
             .map((node) => node.uuid);
 
         // Ensure the item isn't already present in the tree
-        if (treeUuids.includes(item.uuid)) {
+        if (treeUuids.includes(item.uuid!)) {
             return ui.notifications.warn(
                 game.i18n.format('GENERIC.Warning.ItemAlreadyInTree', {
                     itemId: item.uuid,
@@ -227,7 +225,7 @@ export class TalentTreeEditorComponent extends TalentTreeViewComponent {
             id: foundry.utils.randomID(),
             type: TalentTree.Node.Type.Tree,
             position: dropPos,
-            uuid: item.uuid,
+            uuid: item.uuid!,
         };
 
         // Add node to tree

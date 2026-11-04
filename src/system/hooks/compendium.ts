@@ -29,7 +29,7 @@ Hooks.on('renderCompendium', async (compendium: AnyCompendium) => {
     const defaultSortingMode = foundry.utils.getProperty(
         compendium.collection.metadata.flags,
         `${SYSTEM_ID}.defaultSortingMode`,
-    ) as string;
+    ) as foundry.documents.abstract.DirectoryCollectionMixin.SortingMode;
 
     // Set the sorting mode for the compendium
     await game.settings.set('core', 'collectionSortingModes', {

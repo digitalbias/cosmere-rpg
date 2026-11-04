@@ -207,7 +207,7 @@ class PseudoEmbeddedCollectionField<
             )?._applied ?? ([] as foundry.data.fields.DataField.Any[]);
         if (applied.includes(this)) return value as unknown as Return;
         else
-            return super.apply(fn, value, {
+            return super.apply(fn as keyof this, value, {
                 ...options,
                 _applied: [...applied, this],
             } as Options);

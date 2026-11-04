@@ -27,47 +27,72 @@ export const SETTINGS = {
     MEASUREMENT_UNIT_SYSTEM: 'measurementUnitSystem',
 } as const;
 
-type SystemSettingsConfig = {
-    [key in `${typeof SYSTEM_ID}.${typeof SETTINGS.INTERNAL_FIRST_CREATION}`]: boolean;
-} & {
-    [key in `${typeof SYSTEM_ID}.${typeof SETTINGS.INTERNAL_LATEST_VERSION}`]: string;
-} & {
-    [key in `${typeof SYSTEM_ID}.${typeof SETTINGS.DIALOG_ROLL_SKIP_DEFAULT}`]: boolean;
-} & {
-    [key in `${typeof SYSTEM_ID}.${typeof SETTINGS.DIALOG_DAMAGE_MODIFIER_SKIP_DEFAULT}`]: boolean;
-} & {
-    [key in `${typeof SYSTEM_ID}.${typeof SETTINGS.CHAT_ENABLE_OVERLAY_BUTTONS}`]: boolean;
-} & {
-    [key in `${typeof SYSTEM_ID}.${typeof SETTINGS.CHAT_ENABLE_APPLY_BUTTONS}`]: boolean;
-} & {
-    [key in `${typeof SYSTEM_ID}.${typeof SETTINGS.CHAT_ALWAYS_SHOW_BUTTONS}`]: boolean;
-} & {
-    [key in `${typeof SYSTEM_ID}.${typeof SETTINGS.APPLY_BUTTONS_TO}`]: string;
-} & {
-    [key in `${typeof SYSTEM_ID}.${typeof SETTINGS.SHEET_EXPAND_DESCRIPTION_DEFAULT}`]: boolean;
-} & {
-    [key in `${typeof SYSTEM_ID}.${typeof SETTINGS.SHEET_EXPAND_SECTIONS_DEFAULT}`]: boolean;
-} & {
-    [key in `${typeof SYSTEM_ID}.${typeof SETTINGS.SHEET_SKILL_INCDEC_TOGGLE}`]: boolean;
-} & {
-    [key in `${typeof SYSTEM_ID}.${typeof SETTINGS.AUTOMATION_TOKEN_FLAGS_BARS}`]: boolean;
-} & {
-    [key in `${typeof SYSTEM_ID}.${typeof SETTINGS.AUTOMATION_TOKEN_FLAGS_SIGHT}`]: boolean;
-} & {
-    [key in `${typeof SYSTEM_ID}.${typeof SETTINGS.AUTOMATION_TOKEN_FLAGS_SIZE}`]: boolean;
-} & {
-    [key in `${typeof SYSTEM_ID}.${typeof SETTINGS.TOKEN_DEFAULT_BAR_1_VAL}`]:
-        | `resources.${Resource}`
-        | 'none';
-} & {
-    [key in `${typeof SYSTEM_ID}.${typeof SETTINGS.TOKEN_DEFAULT_BAR_2_VAL}`]:
-        | `resources.${Resource}`
-        | 'none';
-} & {
-    [key in `${typeof SYSTEM_ID}.${typeof SETTINGS.SYSTEM_THEME}`]: Theme;
-} & {
-    [key in `${typeof SYSTEM_ID}.${typeof SETTINGS.MEASUREMENT_UNIT_SYSTEM}`]: UnitSystem;
-};
+type SystemSettingsConfig = Record<
+    `${typeof SYSTEM_ID}.${typeof SETTINGS.INTERNAL_FIRST_CREATION}`,
+    boolean
+> &
+    Record<
+        `${typeof SYSTEM_ID}.${typeof SETTINGS.INTERNAL_LATEST_VERSION}`,
+        string
+    > &
+    Record<
+        `${typeof SYSTEM_ID}.${typeof SETTINGS.DIALOG_ROLL_SKIP_DEFAULT}`,
+        boolean
+    > &
+    Record<
+        `${typeof SYSTEM_ID}.${typeof SETTINGS.DIALOG_DAMAGE_MODIFIER_SKIP_DEFAULT}`,
+        boolean
+    > &
+    Record<
+        `${typeof SYSTEM_ID}.${typeof SETTINGS.CHAT_ENABLE_OVERLAY_BUTTONS}`,
+        boolean
+    > &
+    Record<
+        `${typeof SYSTEM_ID}.${typeof SETTINGS.CHAT_ENABLE_APPLY_BUTTONS}`,
+        boolean
+    > &
+    Record<
+        `${typeof SYSTEM_ID}.${typeof SETTINGS.CHAT_ALWAYS_SHOW_BUTTONS}`,
+        boolean
+    > &
+    Record<`${typeof SYSTEM_ID}.${typeof SETTINGS.APPLY_BUTTONS_TO}`, string> &
+    Record<
+        `${typeof SYSTEM_ID}.${typeof SETTINGS.SHEET_EXPAND_DESCRIPTION_DEFAULT}`,
+        boolean
+    > &
+    Record<
+        `${typeof SYSTEM_ID}.${typeof SETTINGS.SHEET_EXPAND_SECTIONS_DEFAULT}`,
+        boolean
+    > &
+    Record<
+        `${typeof SYSTEM_ID}.${typeof SETTINGS.SHEET_SKILL_INCDEC_TOGGLE}`,
+        boolean
+    > &
+    Record<
+        `${typeof SYSTEM_ID}.${typeof SETTINGS.AUTOMATION_TOKEN_FLAGS_BARS}`,
+        boolean
+    > &
+    Record<
+        `${typeof SYSTEM_ID}.${typeof SETTINGS.AUTOMATION_TOKEN_FLAGS_SIGHT}`,
+        boolean
+    > &
+    Record<
+        `${typeof SYSTEM_ID}.${typeof SETTINGS.AUTOMATION_TOKEN_FLAGS_SIZE}`,
+        boolean
+    > &
+    Record<
+        `${typeof SYSTEM_ID}.${typeof SETTINGS.TOKEN_DEFAULT_BAR_1_VAL}`,
+        `resources.${Resource}` | 'none'
+    > &
+    Record<
+        `${typeof SYSTEM_ID}.${typeof SETTINGS.TOKEN_DEFAULT_BAR_2_VAL}`,
+        `resources.${Resource}` | 'none'
+    > &
+    Record<`${typeof SYSTEM_ID}.${typeof SETTINGS.SYSTEM_THEME}`, Theme> &
+    Record<
+        `${typeof SYSTEM_ID}.${typeof SETTINGS.MEASUREMENT_UNIT_SYSTEM}`,
+        UnitSystem
+    >;
 
 type SystemSettingKey = (typeof SETTINGS)[keyof typeof SETTINGS];
 
@@ -205,7 +230,7 @@ export function registerSystemSettings() {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
         type: Number as any,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
-        default: TargetingOptions.SelectedOnly as number as any,
+        default: TargetingOptions.SelectedOnly as any,
         requiresReload: true,
         choices: {
             [TargetingOptions.SelectedOnly]: game.i18n.localize(
@@ -439,7 +464,6 @@ export function getSystemKeybinding(keybindingKey: string) {
 }
 
 declare module '@league-of-foundry-developers/foundry-vtt-types/configuration' {
-    interface SettingConfig extends SystemSettingsConfig {
-        'core.collectionSortingModes': Record<string, string>;
-    }
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+    interface SettingConfig extends SystemSettingsConfig {}
 }

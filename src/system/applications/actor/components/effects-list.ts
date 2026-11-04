@@ -163,8 +163,7 @@ export class ActorEffectsListComponent extends ActorItemListComponent {
                             await foundry.applications.ux.TextEditor.implementation.enrichHTML(
                                 effect.description,
                                 {
-                                    relativeTo:
-                                        item as foundry.abstract.Document.Any,
+                                    relativeTo: item,
                                 },
                             ),
                         isEffectsContainer: false,
@@ -181,7 +180,7 @@ export class ActorEffectsListComponent extends ActorItemListComponent {
         if (this.application.isEditable) {
             // Create context menu
             AppContextMenu.create({
-                parent: this as AppContextMenu.Parent,
+                parent: this,
                 items: (element) => {
                     const effect = this.getEffectFromElement(element);
                     if (!effect) return [];

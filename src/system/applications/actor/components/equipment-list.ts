@@ -242,8 +242,8 @@ export class ActorEquipmentListComponent extends ActorItemListComponent {
 
         // Ensure all items have an expand state record
         physicalItems.forEach((item) => {
-            if (!(item.id! in this.itemState)) {
-                this.itemState[item.id!] = {
+            if (!(item.id in this.itemState)) {
+                this.itemState[item.id] = {
                     expanded: false,
                 };
             }
@@ -293,7 +293,7 @@ export class ActorEquipmentListComponent extends ActorItemListComponent {
                         ),
                     },
                     { parent },
-                ) as Promise<CosmereItem>,
+                ),
         };
     }
 
@@ -353,7 +353,7 @@ export class ActorEquipmentListComponent extends ActorItemListComponent {
         if (this.application.isEditable) {
             // Create context menu
             AppContextMenu.create({
-                parent: this as AppContextMenu.Parent,
+                parent: this,
                 items: (element) => {
                     // Get item id
                     const itemId = $(element)
@@ -378,7 +378,7 @@ export class ActorEquipmentListComponent extends ActorItemListComponent {
                                 // Remove the item
                                 void this.application.actor.deleteEmbeddedDocuments(
                                     'Item',
-                                    [item.id!],
+                                    [item.id],
                                 );
                             },
                         },

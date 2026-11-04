@@ -79,7 +79,7 @@ export class ItemEditEventRuleDialog extends ComponentHandlebarsApplicationMixin
         // Get changes
         const changes = foundry.utils.mergeObject(
             getObjectChanges(
-                (this.item.system.events.get(this.rule.id) as Rule).toObject(), // TEMP: Workaround
+                this.item.system.events.get(this.rule.id)!.toObject(), // TEMP: Workaround
                 this.rule.toObject(),
             ),
             {

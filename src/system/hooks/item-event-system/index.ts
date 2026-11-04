@@ -339,7 +339,7 @@ async function fireEvent(event: Event) {
 
             try {
                 // Execute the rule
-                return await (rule.handler as IHandler).execute(
+                return await rule.handler.execute(
                     foundry.utils.deepClone({ ...event, rule }),
                 );
             } catch (e) {
@@ -397,6 +397,8 @@ function getTransform(type: string, config: ItemEventTypeConfig) {
                 );
             }
 
+            // NOTE: Assertion is required for tsc type inference
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
             return {
                 document,
                 options,

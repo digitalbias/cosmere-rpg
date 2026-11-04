@@ -190,6 +190,16 @@ export class RecordCollection<T> implements Collection<T> {
         return this;
     }
 
+    public getOrInsert(key: string, defaultValue: T): T {
+        if (!this.has(key)) this.set(key, defaultValue);
+        return this.get(key, { strict: true });
+    }
+
+    public getOrInsertComputed(key: string, callback: (key: string) => T): T {
+        if (!this.has(key)) this.set(key, callback(key));
+        return this.get(key, { strict: true });
+    }
+
     public delete(key: string): boolean {
         if (!this.has(key)) return false;
         delete (this as any)[key];
@@ -295,11 +305,7 @@ export class CollectionField<
         Array.from(Object.entries(value)).forEach(([key, v]) => {
             // Reconstruct serialized DataFieldOperators (e.g. ForcedDeletion
             // received from the server as part of an update diff)
-            v = reconstructOperator(
-                value as Record<string, unknown>,
-                key,
-                v,
-            ) as typeof v;
+            v = reconstructOperator(value, key, v) as typeof v;
 
             // Leave deletion/replacement operators untouched
             if (
@@ -366,7 +372,7 @@ export class CollectionField<
             if (v instanceof foundry.data.operators.DataFieldOperator) return;
 
             const error = this.model.validate(
-                v as TElementFieldAssignment,
+                v,
                 options,
             ) as foundry.data.validation.DataModelValidationFailure | null;
             if (error?.unresolved) {
@@ -429,12 +435,7 @@ export class CollectionField<
 
         // * -> null, or operators applied to the whole collection (e.g. _del, _replace())
         if (!value || value instanceof DataFieldOperator)
-            return super._updateDiff(
-                key,
-                value as never,
-                options,
-                state as never,
-            );
+            return super._updateDiff(key, value as never, options, state);
 
         // * -> {}
         const source = ((state.source[key] as

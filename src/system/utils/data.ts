@@ -107,7 +107,7 @@ export function getObjectChanges(original: object, updated: object): AnyObject {
  */
 function getCollectionForDocumentType(
     documentType: string,
-): WorldCollection<foundry.abstract.Document.WorldType, string> {
+): WorldCollection<foundry.abstract.Document.WorldType> {
     const collection = game.collections?.get(documentType);
     if (!collection) {
         throw new Error(`Failed to retrieve "${documentType}" collection`);
@@ -119,13 +119,13 @@ function getCollectionForDocumentType(
 export async function getRawDocumentSources<
     T extends RawDocumentData = RawDocumentData,
 >(documentType: string, packID?: string): Promise<T[]> {
-    const operation: foundry.abstract.types.DatabaseGetOperation = {
+    const operation = {
         query: {},
-    };
+    } as foundry.abstract.types.DatabaseGetOperation;
     if (packID) operation.pack = packID;
 
     // NOTE: Use any type here as it keeps resolving to ManageCompendiumRequest instead of DocumentSocketRequest
-    const { result } = await foundry.helpers.SocketInterface.dispatch(
+    const { result } = (await foundry.helpers.SocketInterface.dispatch(
         'modifyDocument',
         {
             type: documentType,
@@ -133,7 +133,7 @@ export async function getRawDocumentSources<
             action: 'get',
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any,
-    );
+    )) as { result?: unknown[] };
 
     return (result as T[] | undefined) ?? [];
 }
@@ -202,7 +202,7 @@ export function addDocumentToCollection(
         // NOTE: Use any as workaround for foundry-vtt-types issues
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         document._source as any,
-    ) as unknown as CosmereDocument;
+    );
 
     // Manually update collection with document.
     const collection = compendium ?? getCollectionForDocumentType(documentType);

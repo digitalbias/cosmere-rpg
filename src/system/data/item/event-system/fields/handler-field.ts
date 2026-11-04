@@ -41,10 +41,8 @@ export class HandlerField<
         const type = 'type' in value ? value.type : 'none';
 
         // Clean value
-        return (HandlerField.getModelForType(type)?.cleanData(
-            value as unknown as AnyMutableObject,
-            options,
-        ) ?? value) as unknown as HandlerBaseInitializedType;
+        return (HandlerField.getModelForType(type)?.cleanData(value, options) ??
+            value) as unknown as HandlerBaseInitializedType;
     }
 
     protected override _validateType(
@@ -71,18 +69,16 @@ export class HandlerField<
 
     protected override _cast(value: unknown) {
         return (
-            typeof value === 'object' ? (value as AnyObject) : {}
+            typeof value === 'object' ? value : {}
         ) as HandlerBaseAssignmentType;
     }
 
     public _updateDiff<
         TKey extends string,
-        TSource extends AnyMutableObject & {
-            [key in TKey]: HandlerBaseInitializedType;
-        },
-        TDifference extends AnyMutableObject & {
-            [key in TKey]: HandlerBaseInitializedType;
-        },
+        TSource extends AnyMutableObject &
+            Record<TKey, HandlerBaseInitializedType>,
+        TDifference extends AnyMutableObject &
+            Record<TKey, HandlerBaseInitializedType>,
     >(
         key: TKey,
         value: Partial<HandlerBaseInitializedType>,
@@ -104,12 +100,14 @@ export class HandlerField<
         state.diff[key].type = type;
     }
 
-    public override getInitialValue(data: { type?: string }) {
+    public override getInitialValue(source?: unknown) {
+        const data = (source ?? {}) as { type?: string };
+
         // Get model
         const cls = HandlerField.getModelForType(data.type ?? 'none');
 
         // Get initial value
-        return cls.schema.getInitialValue(data);
+        return cls.schema.getInitialValue(data) as HandlerBaseInitializedType;
     }
 
     public override initialize(

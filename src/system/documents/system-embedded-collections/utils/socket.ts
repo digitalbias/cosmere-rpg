@@ -172,7 +172,7 @@ async function transformCRUDRequest(
             return inRequest;
         }
     } else {
-        await queueRequestFor(hierarchy.host.uuid);
+        await queueRequestFor(hierarchy.host.uuid!);
 
         const update = resolveUpdate(inRequest, hierarchy);
 
@@ -252,7 +252,7 @@ async function getCRUDRequestTargets(
             .instance) as AnyEmbeddedCollection;
 
     if (isCreateRequest(request)) {
-        const cls = CONFIG[request.type]?.documentClass as
+        const cls = CONFIG[request.type]?.documentClass as unknown as
             | Document.Constructable.AnyConstructor
             | undefined;
         if (!cls) return [];
@@ -301,7 +301,7 @@ function resolveUpdatedCollectionData(
               .filter((data) => !!data)
               .map((data) => {
                   if (data instanceof foundry.abstract.Document)
-                      data = data.toObject() as AnyMutableObject;
+                      data = data.toObject();
 
                   (data as AnyMutableObject)._id ??= foundry.utils.randomID();
                   return toServerViewObject(
@@ -386,6 +386,8 @@ function resolveUpdate(
 
             const update = foundry.utils.mergeObject(
                 curr.toObject() as AnyDocumentData,
+                // NOTE: Assertion is required for tsc type inference
+                // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
                 {
                     ...(hasSystemEmbeddedCollections(curr) &&
                     curr.isSystemEmbedding(prevDocName)
@@ -485,7 +487,7 @@ function transformRequestCommon<
             },
         },
         { inplace: false },
-    ) as DocumentSocketRequest<DatabaseAction>;
+    ) as unknown as DocumentSocketRequest<DatabaseAction>;
 }
 
 /* --- Transforms - Response --- */
@@ -553,7 +555,8 @@ function transformCreateUpdateResponse(
                 .reverse()
                 .reduce(
                     (acc, { documentName, id }, index, self) => {
-                        const cls = CONFIG[documentName]?.documentClass as
+                        const cls = CONFIG[documentName]
+                            ?.documentClass as unknown as
                             | Document.Constructable.AnyConstructor
                             | undefined;
                         if (!cls)
@@ -622,7 +625,7 @@ function transformCreateUpdateResponse(
         if (targetIds)
             result = result.filter((doc) =>
                 targetIds.includes(
-                    foundry.utils.getProperty(doc, '_id') as string,
+                    foundry.utils.getProperty(doc as object, '_id') as string,
                 ),
             );
     }
@@ -709,7 +712,7 @@ function transformAdventureResponse(
 
     return foundry.utils.mergeObject(inResponse, {
         result,
-    }) as SocketResponse;
+    });
 }
 
 /* --- Helpers --- */
@@ -744,7 +747,7 @@ export function toServerViewObject(
             : documentType!;
 
     const cls = CONFIG[documentType]
-        ?.documentClass as Document.Constructable.AnyConstructor;
+        ?.documentClass as unknown as Document.Constructable.AnyConstructor;
 
     // Handle system embedded collections
     if (hasSystemEmbeddedCollections(cls)) {
@@ -972,7 +975,9 @@ export function toClientViewObject(
     }
 
     return toDocument
-        ? new (cls as Document.Constructable.AnyConstructor)(data, { parent })
+        ? new (cls as unknown as Document.Constructable.AnyConstructor)(data, {
+              parent,
+          })
         : data;
 }
 

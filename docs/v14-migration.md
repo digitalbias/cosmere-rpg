@@ -45,11 +45,25 @@ and Chasmfiend modules and of the local `cosmere` world) and drove it with Playw
   compendium folder from the docker world seed, which isn't available locally.
 - No deprecation warnings or errors are logged during any of the above.
 
+## Type checking and linting
+
+- TypeScript upgraded to 6.x (the version fvtt-types v14 is built against), `@types/node` to 24 and
+  `lib` to `esnext`; `typescript-eslint` updated to a release that supports TS 6.
+- `tsc --noEmit` and `eslint src` both pass with zero errors, so the pre-commit hook works again.
+- Type fixes that also changed runtime behaviour:
+  - `foundry.utils.parseUuid` can return `null` in v14; callers now handle it.
+  - `Game.connect` takes no arguments in v14; the system embedded collection socket patch forwards
+    whatever it receives.
+  - Item embeds (`@Embed`) are wrapped in a `<document-embed>` element so core attaches the uuid
+    and calls `onEmbed`.
+  - Combat tracker context menu uses v14 `label`/`onClick`, and hides core's initiative
+    Reroll / Clear entries again (the filter matched the v13 labels and silently stopped working).
+  - `modifyTokenAttribute` hook receives the actor as its third argument, as in core.
+- `prefer-nullish-coalescing` is configured to ignore primitives and ternaries so `||` fallbacks for
+  empty strings keep their behaviour.
+
 ## Known remaining work
 
-- ~120 TypeScript errors from the v14 fvtt-types beta (types only; the rollup build still
-  emits working code). Because of these, the lint-staged pre-commit hook fails, so commits on
-  this branch used `--no-verify`.
 - Things not exercised: Mistborn content, Dice So Nice integration, multi-level scenes (v14 Scene
   Levels), regions.
 - Switch back to the official release once upstream ships v14 support.

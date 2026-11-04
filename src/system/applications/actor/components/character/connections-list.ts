@@ -54,7 +54,7 @@ any> {
             ],
             {
                 render: false,
-            },
+            } as never,
         );
 
         // Render
@@ -142,8 +142,8 @@ any> {
 
         // Ensure item state exists for each connection
         connections.forEach((item) => {
-            if (!(item.id! in this.connectionItemStates)) {
-                this.connectionItemStates[item.id!] = {};
+            if (!(item.id in this.connectionItemStates)) {
+                this.connectionItemStates[item.id] = {};
             }
         });
 
@@ -153,7 +153,7 @@ any> {
             connections: await Promise.all(
                 connections.map(async (item) => ({
                     ...item,
-                    ...this.connectionItemStates[item.id!],
+                    ...this.connectionItemStates[item.id],
                     id: item.id,
                     descriptionHTML:
                         await foundry.applications.ux.TextEditor.implementation.enrichHTML(

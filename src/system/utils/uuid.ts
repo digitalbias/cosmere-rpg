@@ -25,7 +25,8 @@ export async function journalEntryPageTextFromUuid(
     options.includeHeading = options.includeHeading ?? true;
 
     // Parse the UUID
-    const { collection, documentId, id, type } = foundry.utils.parseUuid(uuid);
+    const { collection, documentId, id, type } =
+        foundry.utils.parseUuid(uuid) ?? {};
     if (!collection || !documentId || !id) return null;
     if (type !== 'JournalEntryPage') return null;
 

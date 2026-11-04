@@ -723,7 +723,7 @@ export class CosmereChatMessage<
      * @param html The roll tooltip markup.
      */
     protected enrichD20Tooltip(roll: Roll, html: HTMLElement) {
-        const constant = getConstantFromRoll(roll as unknown as Roll); // TEMP: Workaround
+        const constant = getConstantFromRoll(roll); // TEMP: Workaround
         if (constant === 0) return;
 
         const sign = constant < 0 ? '-' : '+';

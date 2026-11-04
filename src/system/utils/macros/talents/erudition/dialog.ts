@@ -97,7 +97,7 @@ export class EruditionDialog extends HandlebarsApplicationMixin(
                     (exp) =>
                         config.actor.system.expertises?.[
                             `${exp.type}:${exp.id}`
-                        ] as Expertise,
+                        ],
                 )
                 .filter(Boolean)
                 .map((exp) => ({

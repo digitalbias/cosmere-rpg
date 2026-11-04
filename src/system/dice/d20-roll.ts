@@ -308,7 +308,7 @@ export class D20Roll extends foundry.dice.Roll<D20RollData> {
         return super.toMessage(messageData, {
             ...rest,
             ...messageModeOptions(rollMode),
-        } as typeof options);
+        });
     }
 
     public async getHTML() {

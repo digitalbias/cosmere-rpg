@@ -176,7 +176,9 @@ export class MultiValueSelectComponent extends HandlebarsApplicationComponent<
 
         options =
             foundry.utils.getType(options) === 'Object'
-                ? (foundry.utils.deepClone(options) as Record<string, string>)
+                ? // NOTE: Assertion is required for tsc type inference
+                  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+                  (foundry.utils.deepClone(options) as Record<string, string>)
                 : (options as string[]).reduce(
                       (acc, key) => ({ ...acc, [key]: key }),
                       {} as Record<string, string>,

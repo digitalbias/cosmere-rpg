@@ -124,7 +124,7 @@ export class NodePrerequisiteGoalListComponent extends DragDropComponentMixin(
         // Add goal to the list
         this.goals.set(item.system.id, {
             id: item.system.id,
-            uuid: item.uuid,
+            uuid: item.uuid!,
             label: item.name,
         });
 

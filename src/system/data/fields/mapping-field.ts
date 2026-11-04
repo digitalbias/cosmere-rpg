@@ -32,11 +32,7 @@ export class MappingField<
 
         Object.entries(value).forEach(([key, v]) => {
             // Reconstruct serialized DataFieldOperators
-            v = reconstructOperator(
-                value as Record<string, unknown>,
-                key,
-                v,
-            ) as typeof v;
+            v = reconstructOperator(value, key, v) as typeof v;
 
             // Leave deletion/replacement operators untouched
             if (

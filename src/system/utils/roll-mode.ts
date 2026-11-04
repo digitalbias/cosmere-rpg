@@ -41,13 +41,12 @@ function hasMessageModes(): boolean {
  * Get the user's currently selected roll mode as a legacy roll mode identifier.
  */
 export function getDefaultRollMode(): RollMode {
-    if (!hasMessageModes())
-        return game.settings.get('core', 'rollMode') as RollMode;
+    if (!hasMessageModes()) return game.settings.get('core', 'rollMode');
 
     const mode = (
         game.settings as unknown as { get(ns: string, key: string): string }
     ).get('core', 'messageMode');
-    return MESSAGE_TO_LEGACY_MODE[mode] ?? ('publicroll' as RollMode);
+    return MESSAGE_TO_LEGACY_MODE[mode] ?? 'publicroll';
 }
 
 /**
@@ -99,7 +98,7 @@ export function getRollModeChoices(): Record<
             modes?: Record<string, { label: string; icon: string }>;
         }
     ).modes;
-    if (!modes) return CONFIG.Dice.rollModes as never;
+    if (!modes) return CONFIG.Dice.rollModes;
 
     return Object.fromEntries(
         Object.entries(LEGACY_TO_MESSAGE_MODE).map(([legacy, mode]) => [

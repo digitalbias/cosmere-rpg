@@ -98,7 +98,12 @@ export class ItemActionsListComponent extends HandlebarsApplicationComponent<
         const action = this.item.items.get(id);
         if (!action) return;
 
-        void action.sheet?.render({ force: true, editable: false });
+        void (
+            action.sheet as foundry.applications.api.ApplicationV2.Any | null
+        )?.render({
+            force: true,
+            editable: false,
+        } as unknown as foundry.applications.api.ApplicationV2.RenderOptions);
     }
 
     /* --- Context --- */

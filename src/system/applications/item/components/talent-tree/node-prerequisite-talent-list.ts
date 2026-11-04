@@ -133,7 +133,7 @@ export class NodePrerequisiteTalentListComponent extends DragDropComponentMixin(
         // Add talent to the list
         this.talents.set(item.system.id, {
             id: item.system.id,
-            uuid: item.uuid,
+            uuid: item.uuid!,
             label: item.name,
         });
 

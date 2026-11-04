@@ -43,4 +43,10 @@ export interface SocketResponse
         isHierarchical?: boolean;
     };
     type: foundry.abstract.Document.Type;
+    /**
+     * Result data of a document socket operation
+     * (document sources for create/get/update, ids for delete)
+     */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    result?: (string | Record<string, any>)[];
 }

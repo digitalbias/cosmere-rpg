@@ -207,7 +207,9 @@ export class MatchDocumentConfigDialog extends ComponentHandlebarsApplicationMix
                 (lastStep.matchBy === MatchBy.DocumentType
                     ? lastStep.documentType
                     : lastStep.reference
-                      ? ((await fromUuid(lastStep.reference))
+                      ? // NOTE: Assertion is required for tsc type inference
+                        // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion, @typescript-eslint/non-nullable-type-assertion-style
+                        ((await fromUuid(lastStep.reference))
                             ?.documentName as foundry.abstract.Document.Type)
                       : undefined);
 

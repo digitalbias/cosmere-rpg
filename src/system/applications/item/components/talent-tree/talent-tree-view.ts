@@ -243,7 +243,7 @@ export class TalentTreeViewComponent<
 
         // Add context menu
         this.contextMenu = AppContextMenu.create({
-            parent: this as AppContextMenu.Parent,
+            parent: this,
         });
 
         // Create canvas application

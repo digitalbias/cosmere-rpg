@@ -108,8 +108,8 @@ export class ConfigureDeflectDialog extends HandlebarsApplicationMixin(
             }
         }
 
-        if (isNaN(this.data.override!)) this.data.override = 0;
-        if (isNaN(this.data.natural)) this.data.natural = 0;
+        if (isNaN(Number(this.data.override))) this.data.override = 0;
+        if (isNaN(Number(this.data.natural))) this.data.natural = 0;
         if (isNaN(this.data.bonus)) this.data.bonus = 0;
 
         // Assign mode

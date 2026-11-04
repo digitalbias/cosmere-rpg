@@ -16,7 +16,7 @@ export interface CosmereTurnContext extends CombatTracker.TurnContext {
     bossFastActivated?: boolean;
 }
 
-interface CosmereTrackerContext extends CombatTracker.TrackerContext {
+interface CosmereTrackerContext {
     turns: CosmereTurnContext[];
     fastPlayers: CosmereTurnContext[];
     slowPlayers: CosmereTurnContext[];
@@ -52,7 +52,8 @@ export class CosmereCombatTracker extends foundry.applications.sidebar.tabs
     );
 
     public override async _prepareTrackerContext(
-        context: CombatTracker.RenderContext & CosmereTrackerContext,
+        context: Omit<CombatTracker.RenderContext, 'turns'> &
+            CosmereTrackerContext,
         options: CombatTracker.RenderOptions,
     ) {
         const combat = this.viewed;
@@ -190,14 +191,14 @@ export class CosmereCombatTracker extends foundry.applications.sidebar.tabs
     protected override _getEntryContextOptions(): ContextMenu.Entry<HTMLElement>[] {
         const menu: ContextMenu.Entry<HTMLElement>[] = [
             {
-                name: 'COSMERE.Combat.ToggleTurn',
+                label: 'COSMERE.Combat.ToggleTurn',
                 icon: '',
-                callback: this._onContextToggleTurnSpeed.bind(this),
+                onClick: (event, li) => this._onContextToggleTurnSpeed(li),
             },
             {
-                name: 'COSMERE.Combat.ResetActivation',
+                label: 'COSMERE.Combat.ResetActivation',
                 icon: '<i class="fas fa-undo"></i>',
-                callback: this._onContextResetActivation.bind(this),
+                onClick: (event, li) => this._onContextResetActivation(li),
             },
         ];
 
@@ -207,8 +208,8 @@ export class CosmereCombatTracker extends foundry.applications.sidebar.tabs
                 ._getEntryContextOptions()
                 .filter(
                     (i) =>
-                        i.name !== 'COMBAT.CombatantReroll' &&
-                        i.name !== 'COMBAT.CombatantClear',
+                        i.label !== 'COMBATANT.ACTIONS.Reroll' &&
+                        i.label !== 'COMBATANT.ACTIONS.Clear',
                 ),
         );
         return menu;

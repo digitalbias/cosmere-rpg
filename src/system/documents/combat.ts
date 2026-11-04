@@ -46,7 +46,7 @@ export class CosmereCombat extends Combat {
         return combat;
     }
 
-    override setupTurns(): CosmereCombatant[] {
+    override setupTurns(): Combatant.Stored[] {
         this.turns ??= [];
 
         const turns = Array.from(this.combatants)
@@ -78,10 +78,10 @@ export class CosmereCombat extends Combat {
         this.current = this._getCurrentState(c);
 
         // One-time initialization of the previous state
-        if (!this.previous) this.previous = this.current;
+        this.previous ??= this.current;
 
         // Assign turns
-        this.turns = turns;
+        this.turns = turns as unknown as Combatant.Stored[];
 
         // Return the array of prepared turns
         return this.turns;

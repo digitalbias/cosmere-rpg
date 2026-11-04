@@ -92,8 +92,7 @@ export class ExpertisesListComponent extends HandlebarsApplicationComponent<
 
     public get expertises(): Collection<Expertise> {
         return this.application instanceof BaseActorSheet
-            ? (this.application.actor.system
-                  .expertises as unknown as Collection<Expertise>) // TEMP: Workaround
+            ? this.application.actor.system.expertises // TEMP: Workaround
             : this._value;
     }
 

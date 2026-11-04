@@ -580,10 +580,10 @@ export class EditExpertisesDialog extends HandlebarsApplicationMixin(
     }
 
     protected _onClose(options: object): void {
-        super._onClose(options);
+        void super._onClose(options);
 
         // Resolve the promise
-        this.resolve(this.shouldUpdateSource ? (void 0 as void) : this.data);
+        this.resolve(this.shouldUpdateSource ? void 0 : this.data);
     }
 
     /* --- Helpers --- */

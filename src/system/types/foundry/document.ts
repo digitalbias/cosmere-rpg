@@ -6,6 +6,7 @@ declare class AnyConstructableDocument extends foundry.abstract.Document<
 > {
     constructor(...args: any[]);
     _source: object;
+    get compendium(): any;
 }
 /* eslint-enable @typescript-eslint/no-explicit-any, @typescript-eslint/no-empty-object-type */
 

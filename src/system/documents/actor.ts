@@ -209,9 +209,7 @@ export class CosmereActor<
     }
 
     public get ancestry(): AncestryItem | undefined {
-        return this.items.find((i) => i.isAncestry()) as
-            | AncestryItem
-            | undefined;
+        return this.items.find((i) => i.isAncestry());
     }
 
     public get cultures(): CultureItem[] {
@@ -502,6 +500,7 @@ export class CosmereActor<
                 'modifyTokenAttribute',
                 { attribute, value, isDelta, isBar },
                 updates,
+                this as unknown as Actor.Implementation,
             );
             return allowed !== false ? (await this.update(updates))! : this;
         } else {
@@ -794,7 +793,7 @@ export class CosmereActor<
         const draw = await table.draw({
             roll,
             displayChat: false,
-        } as any);
+        });
         /* eslint-Enable @typescript-eslint/no-explicit-any */
 
         // Get result
@@ -1010,9 +1009,7 @@ export class CosmereActor<
     }
 
     public async applyHealing(amount: number) {
-        return this.applyDamage([
-            { amount, type: DamageType.Healing } as DamageInstance,
-        ]);
+        return this.applyDamage([{ amount, type: DamageType.Healing }]);
     }
 
     /**
@@ -1437,7 +1434,7 @@ export class CosmereActor<
         } as const satisfies EnricherData<SubType>;
     }
 
-    public *allApplicableEffects() {
+    public *allApplicableEffects(): Generator<ActiveEffect.Stored, void, void> {
         for (const effect of this.effects) {
             yield effect;
         }
@@ -1447,7 +1444,8 @@ export class CosmereActor<
             }
 
             for (const effect of item.nestedEffects) {
-                if (effect.transfer) yield effect;
+                if (effect.transfer)
+                    yield effect as unknown as ActiveEffect.Stored;
             }
         }
     }
@@ -1585,7 +1583,7 @@ export class CosmereActor<
     public hasExpertise(
         ...args: [Expertise] | [ExpertiseType, string]
     ): boolean {
-        return containsExpertise(this.system.expertises as any, ...args); // TEMP: Workaround
+        return containsExpertise(this.system.expertises, ...args); // TEMP: Workaround
     }
 
     /**

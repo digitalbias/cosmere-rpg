@@ -21,10 +21,10 @@ export function hasSystemEmbeddedCollections(
 }
 
 export function getDocumentClassFor(uuid: string) {
-    const { documentType } = foundry.utils.parseUuid(uuid);
+    const documentType = foundry.utils.parseUuid(uuid)?.documentType;
     if (!documentType) return null;
     return CONFIG[documentType]
-        .documentClass as foundry.abstract.Document.AnyConstructor | null;
+        .documentClass as unknown as foundry.abstract.Document.AnyConstructor | null;
 }
 
 export function getCollectionNameFor(

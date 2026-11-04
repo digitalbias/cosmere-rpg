@@ -227,7 +227,7 @@ export class EditNodePrerequisiteDialog extends ComponentHandlebarsApplicationMi
 
             if (ancestry?.isAncestry()) {
                 this.data.ancestry = {
-                    uuid: ancestry.uuid,
+                    uuid: ancestry.uuid!,
                     id: ancestry.system.id,
                     label: ancestry.name,
                 };
@@ -243,7 +243,7 @@ export class EditNodePrerequisiteDialog extends ComponentHandlebarsApplicationMi
 
             if (culture?.isCulture()) {
                 this.data.culture = {
-                    uuid: culture.uuid,
+                    uuid: culture.uuid!,
                     id: culture.system.id,
                     label: culture.name,
                 };
@@ -257,7 +257,7 @@ export class EditNodePrerequisiteDialog extends ComponentHandlebarsApplicationMi
 
             if (power?.isPower()) {
                 this.data.power = {
-                    uuid: power.uuid,
+                    uuid: power.uuid!,
                     id: power.system.id,
                     label: power.name,
                 };

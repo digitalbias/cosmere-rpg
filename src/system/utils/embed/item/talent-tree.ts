@@ -43,7 +43,11 @@ export function createInlineEmbed(
 
     section.classList.add('item-embed', 'talent-tree');
 
-    return Promise.resolve(section);
+    // Wrap in a <document-embed> element so core attaches the uuid and onEmbed callbacks
+    const embed = new foundry.applications.elements.HTMLDocumentEmbedElement();
+    embed.append(section);
+
+    return Promise.resolve(embed);
 }
 
 async function getEmbedApp(

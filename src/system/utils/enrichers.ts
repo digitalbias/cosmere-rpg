@@ -76,7 +76,9 @@ export function registerCustomEnrichers() {
                 section.classList.add('content-link-anchor');
 
                 // Parse the uuid
-                const { id, collection, type } = foundry.utils.parseUuid(uuid);
+                const parsed = foundry.utils.parseUuid(uuid);
+                if (!parsed) return null;
+                const { id, collection, type } = parsed;
 
                 // Set attributes
                 section.setAttribute('draggable', 'true');
@@ -375,9 +377,9 @@ function enrichTest(
         : buildTestLabel(config, skillConfig, attributeConfig);
     const linkOptions = {
         actorId:
-            source instanceof CosmereActor
+            (source instanceof CosmereActor
                 ? source.uuid
-                : ((source as unknown as CosmereItem).actor?.uuid ?? ''),
+                : (source as unknown as CosmereItem).actor?.uuid) ?? '',
         source: source?.uuid ?? '',
         data: {
             skill: skillConfig?.key ?? '',
@@ -483,9 +485,9 @@ async function enrichDamage(
     // encode the data for the click action
     const linkOptions = {
         actorId:
-            source instanceof CosmereActor
+            (source instanceof CosmereActor
                 ? source.uuid
-                : ((source as unknown as CosmereItem).actor?.uuid ?? ''),
+                : (source as unknown as CosmereItem).actor?.uuid) ?? '',
         source: source?.uuid ?? '',
         data: {
             formula: setValue,

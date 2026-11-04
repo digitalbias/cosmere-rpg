@@ -187,10 +187,7 @@ async function matchStep({
     }
 
     const matcher = resolveMatcher(matchBy, referenceDoc);
-    const candidates = resolveCandidateDocuments(
-        relativeTo,
-        target as Exclude<DocumentTarget, 'self' | 'global'>,
-    );
+    const candidates = resolveCandidateDocuments(relativeTo, target);
 
     const matchedDocuments = candidates.filter(matcher);
 

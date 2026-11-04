@@ -82,13 +82,13 @@ export function createInlineEmbed(
     section.classList.add('item-embed', item.type);
 
     // Parse the uuid
-    const { id, uuid, collection } = foundry.utils.parseUuid(item.uuid);
+    const { id, uuid, collection } = foundry.utils.parseUuid(item.uuid!) ?? {};
 
     // Set attributes
     section.setAttribute('draggable', 'true');
     section.setAttribute('data-link', '');
-    section.dataset.uuid = uuid;
-    section.dataset.id = id;
+    section.dataset.uuid = uuid ?? item.uuid ?? undefined;
+    section.dataset.id = id ?? item.id ?? '';
     section.dataset.type = item.documentName;
 
     if (
@@ -96,7 +96,11 @@ export function createInlineEmbed(
     )
         section.dataset.pack = collection.collection;
 
-    return Promise.resolve(section);
+    // Wrap in a <document-embed> element so core attaches the uuid and onEmbed callbacks
+    const embed = new foundry.applications.elements.HTMLDocumentEmbedElement();
+    embed.append(section);
+
+    return Promise.resolve(embed);
 }
 
 export function getLinkDataStr(

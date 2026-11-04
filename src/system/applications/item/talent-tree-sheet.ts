@@ -64,7 +64,7 @@ export class TalentTreeItemSheet extends EditModeApplicationMixin(
     private prevHeight = 0;
 
     constructor(options: TalentTreeSheetConfiguration) {
-        const tree = options.document as unknown as TalentTreeItem;
+        const tree = options.document;
         const mode = tree.getFlag(SYSTEM_ID, 'sheet.mode') ?? 'view';
 
         // Override options
@@ -113,7 +113,8 @@ export class TalentTreeItemSheet extends EditModeApplicationMixin(
         if (!('name' in event.target!)) return;
 
         // Ignore changes to the context actor selector in the window header
-        if ((event.target as unknown as HTMLElement).closest?.('.actor-select')) return;
+        if ((event.target as unknown as HTMLElement).closest?.('.actor-select'))
+            return;
 
         // Don't attempt to update documents which can't be edited (e.g. locked compendiums)
         if (!this.isEditable) return;

@@ -20,9 +20,7 @@ export class CosmereCombatant extends Combatant {
     }
 
     public static get schema() {
-        if (!_schema) {
-            _schema = new foundry.data.fields.SchemaField(this.defineSchema());
-        }
+        _schema ??= new foundry.data.fields.SchemaField(this.defineSchema());
         return _schema as foundry.data.fields.SchemaField<Combatant.Schema>;
     }
 
