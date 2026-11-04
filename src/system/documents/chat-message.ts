@@ -450,7 +450,8 @@ export class CosmereChatMessage<
             {
                 title,
                 img: injury.img,
-                description: injury.text,
+                description:
+                    injury.type === 'text' ? injury.description : injury.name,
                 formula: injuryRoll?.formula,
                 total: injuryRoll?.total,
                 tooltip: await injuryRoll?.getTooltip(),

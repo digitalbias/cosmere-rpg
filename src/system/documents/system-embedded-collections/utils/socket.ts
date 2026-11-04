@@ -811,6 +811,19 @@ export function toServerViewObject(
             ) as AnyObject[] | undefined;
             if (!collectionData) return;
 
+            // Single embedded documents (e.g. a Token's ActorDelta)
+            if (foundry.utils.getType(collectionData) === 'Object') {
+                foundry.utils.setProperty(
+                    obj,
+                    collectionName,
+                    toServerViewObject(
+                        collectionData as unknown as AnyMutableObject,
+                        embeddedName as foundry.abstract.Document.Type,
+                    ),
+                );
+                return;
+            }
+
             collectionData = ensureArray(collectionData);
             if (!collectionData) {
                 console.warn(
@@ -917,6 +930,19 @@ export function toClientViewObject(
                 collectionName,
             );
             if (!collectionData) return;
+
+            // Single embedded documents (e.g. a Token's ActorDelta)
+            if (foundry.utils.getType(collectionData) === 'Object') {
+                foundry.utils.setProperty(
+                    data,
+                    collectionName,
+                    toClientViewObject(
+                        collectionData as AnyMutableObject,
+                        embeddedName,
+                    ),
+                );
+                return;
+            }
 
             collectionData = ensureArray(collectionData);
             if (!collectionData) {
