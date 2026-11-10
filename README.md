@@ -10,6 +10,10 @@ The upstream project does not accept work made with generative AI. That follows 
 
 I believe AI tools are worth using. They don't replace the people doing this work. They make those people more capable. I use them here because they let me ship working features and fixes much faster.
 
+AI doesn't make code better on its own. It makes the work go faster. Someone with no coding experience will still produce slop with AI. A professional brings the guardrails they already rely on: code review, tests, and the hard-won scars of past mistakes. With AI, that person writes better code because they can do more of that work in the same time. That's the whole point.
+
+It's also why this fork has Playwright UI tests. They're one of those guardrails. They check that a fix actually works in Foundry before I ship it. I learned a long time ago that tests make writing code both better and faster. Credit for that goes to Martin Fowler's *Refactoring*.
+
 That's why I diverged from the upstream repository. I didn't want to wait months for a version that works on Foundry v14. This fork has:
 - Foundry v14 compatibility fixes (see [docs/v14-migration.md](./docs/v14-migration.md))
 - Selected fixes and features from upstream pull requests that haven't been merged yet
